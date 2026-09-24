@@ -7,6 +7,15 @@ SMODS.Atlas {
     py = 95,
 }
 
+SMODS.Atlas {
+    key = "cartas",
+    path = "kasino_cartas.png",
+    px = 71,
+    py = 95,
+}
+
+assert(SMODS.load_file("kasino_lib.lua"))()
+
 local function prob()
     return (G.GAME and G.GAME.probabilities.normal) or 1
 end
@@ -280,3 +289,6 @@ SMODS.Joker {
         end
     end,
 }
+
+-- Los 100 comodines de la hoja de sprites (generados por tools/generar_comodines.py)
+assert(SMODS.load_file("comodines.lua"))()

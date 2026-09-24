@@ -1,6 +1,12 @@
 # Kasino — mod de Balatro
 
-Añade **8 comodines con temática de casino** y arte pixel propio.
+Añade **108 comodines** con arte pixel:
+
+- **100 comodines** sacados de la hoja de sprites `assets/fuente/hoja_comodines.webp`.
+  Sus especificaciones (efecto, rareza y coste) están en **[COMODINES.md](COMODINES.md)**.
+- **8 comodines de casino**, en la tabla de abajo.
+
+## Comodines de casino
 
 | Comodín | Rareza | Efecto |
 |---|---|---|
@@ -17,13 +23,24 @@ Añade **8 comodines con temática de casino** y arte pixel propio.
 
 1. Instala [Lovely Injector](https://github.com/ethangreen-dev/lovely-injector) y
    [Steamodded](https://github.com/Steamodded/smods) (1.0.0 o superior).
-2. Copia esta carpeta entera (con `main.lua`, `Kasino.json` y `assets/`) en la carpeta de mods:
+2. Copia esta carpeta entera (con `main.lua`, `kasino_lib.lua`, `comodines.lua`, `Kasino.json` y `assets/`) en la carpeta de mods:
    - Windows: `%AppData%\Balatro\Mods\Kasino`
    - macOS: `~/Library/Application Support/Balatro/Mods/Kasino`
    - Linux (Proton): `~/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/Kasino`
 3. Abre Balatro. En el menú **Mods** debería aparecer *Kasino*.
 
-## Editar los sprites
+## Editar los 100 comodines
+
+Los efectos, rarezas y costes están en `tools/comodines.py`. Después de cambiarlos, ejecuta:
+
+```
+pip install pillow
+python3 tools/generar_comodines.py
+```
+
+Esto regenera `comodines.lua`, el atlas `assets/*/kasino_cartas.png` y `COMODINES.md`.
+
+## Editar los sprites de casino
 
 Los iconos están definidos como mapas de píxeles en `tools/generar_sprites.py`.
 Tras cambiarlos, regenera el atlas con:

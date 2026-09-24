@@ -3,12 +3,12 @@
   "name": "Kasino",
   "display_name": "Kasino",
   "author": ["interestelariss"],
-  "description": "Añade 8 comodines con temática de casino.",
+  "description": "Añade 108 comodines con arte pixel.",
   "prefix": "kas",
   "main_file": "main.lua",
   "priority": 0,
   "badge_colour": "C83C3C",
   "badge_text_colour": "FFFFFF",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dependencies": ["Steamodded (>=1.0.0~BETA-0827c)"]
 }
