@@ -1,4 +1,4 @@
-"""Genera comodines.lua, el atlas kasino_cartas.png y COMODINES.md.
+"""Genera comodines.lua, los atlas assets/*/kasino_cartas*.png y COMODINES.md.
 
 Uso: python3 tools/generar_comodines.py   (requiere Pillow)
 """
@@ -7,18 +7,29 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from comodines import COMODINES
+import comodines
+import comodines_hoja2
+import comodines_hoja3
 
 ROOT = Path(__file__).resolve().parent.parent
-HOJA = ROOT / "assets" / "fuente" / "hoja_comodines.webp"
 W, H = 71, 95
-COLS, FILAS = 10, 10
+
+# modo "claro": cartas claras sobre fondo oscuro; "oscuro": cartas de cualquier
+# color separadas por un fondo casi negro.
+HOJAS = [
+    dict(fuente="hoja_comodines.webp", atlas="cartas", png="kasino_cartas.png",
+         cols=10, filas=10, modo="claro", comodines=comodines.COMODINES),
+    dict(fuente="hoja_comodines_2.webp", atlas="cartas2", png="kasino_cartas_2.png",
+         cols=13, filas=5, modo="oscuro", comodines=comodines_hoja2.COMODINES),
+    dict(fuente="hoja_comodines_3.webp", atlas="cartas3", png="kasino_cartas_3.png",
+         cols=13, filas=4, modo="oscuro", comodines=comodines_hoja3.COMODINES),
+]
 RAREZAS = {1: "Común", 2: "Poco común", 3: "Raro", 4: "Legendario"}
 
 
 # ---------------------------------------------------------------- sprites
 
-def rachas(perfil, umbral):
+def rachas(perfil, umbral, hueco=0):
     out, ini = [], None
     for i, v in enumerate(perfil):
         if v > umbral and ini is None:
@@ -28,24 +39,31 @@ def rachas(perfil, umbral):
             ini = None
     if ini is not None:
         out.append((ini, len(perfil) - 1))
-    return out
+    # Une tramos separados por huecos pequenos (detalles oscuros dentro de una carta)
+    unidos = [list(out[0])]
+    for a, b in out[1:]:
+        if a - unidos[-1][1] <= hueco:
+            unidos[-1][1] = b
+        else:
+            unidos.append([a, b])
+    return unidos
 
 
-def es_carta(p):
-    return sum(p) / 3 > 150
-
-
-def recortar_cartas(img):
-    """Localiza cada carta de la hoja (cartas claras sobre fondo oscuro)."""
+def recortar_cartas(img, hoja):
+    """Localiza cada carta de la hoja a partir de los perfiles de filas y columnas."""
     px = img.load()
     ancho, alto = img.size
+    if hoja["modo"] == "claro":
+        es_carta, umbral, hueco = (lambda p: sum(p) / 3 > 150), 0.15, 0
+    else:
+        es_carta, umbral, hueco = (lambda p: sum(p) / 3 >= 45), 0.2, 6
     cols = [sum(es_carta(px[x, y]) for y in range(0, alto, 2)) / (alto / 2) for x in range(ancho)]
     filas = [sum(es_carta(px[x, y]) for x in range(0, ancho, 2)) / (ancho / 2) for y in range(alto)]
-    xs, ys = rachas(cols, 0.15), rachas(filas, 0.15)
-    assert len(xs) >= COLS and len(ys) >= FILAS, (len(xs), len(ys))
+    xs, ys = rachas(cols, umbral, hueco), rachas(filas, umbral, hueco)
+    assert len(xs) >= hoja["cols"] and len(ys) >= hoja["filas"], (hoja["fuente"], len(xs), len(ys))
     cajas = []
-    for (y0, y1) in ys[:FILAS]:
-        for (x0, x1) in xs[:COLS]:
+    for (y0, y1) in ys[:hoja["filas"]]:
+        for (x0, x1) in xs[:hoja["cols"]]:
             cajas.append((x0, y0, x1 + 1, y1 + 1))
     return cajas
 
@@ -69,14 +87,15 @@ def sprite(img, caja, escala):
     return fondo
 
 
-def generar_atlas():
-    img = Image.open(HOJA).convert("RGB")
-    cajas = recortar_cartas(img)
+def generar_atlas(hoja):
+    img = Image.open(ROOT / "assets" / "fuente" / hoja["fuente"]).convert("RGB")
+    cajas = recortar_cartas(img, hoja)
+    cols, filas = hoja["cols"], hoja["filas"]
     for escala in (1, 2):
-        atlas = Image.new("RGBA", (W * escala * COLS, H * escala * FILAS), (0, 0, 0, 0))
+        atlas = Image.new("RGBA", (W * escala * cols, H * escala * filas), (0, 0, 0, 0))
         for i, caja in enumerate(cajas):
-            atlas.paste(sprite(img, caja, escala), ((i % COLS) * W * escala, (i // COLS) * H * escala))
-        out = ROOT / "assets" / f"{escala}x" / "kasino_cartas.png"
+            atlas.paste(sprite(img, caja, escala), ((i % cols) * W * escala, (i // cols) * H * escala))
+        out = ROOT / "assets" / f"{escala}x" / hoja["png"]
         atlas.save(out)
         print("escrito", out.relative_to(ROOT))
 
@@ -99,10 +118,24 @@ def lua_var(v):
 
 def generar_lua():
     out = ["--- GENERADO por tools/generar_comodines.py: no editar a mano.",
-           "--- Los 100 comodines de la hoja de sprites (atlas kasino_cartas).", ""]
-    for i, c in enumerate(COMODINES):
+           "--- Comodines de las hojas de sprites de assets/fuente.", ""]
+    for hoja in HOJAS:
+        out.append('SMODS.Atlas { key = "%s", path = "%s", px = %d, py = %d }' % (hoja["atlas"], hoja["png"], W, H))
+    out.append("")
+    n = 0
+    for hoja in HOJAS:
+        out += generar_lua_hoja(hoja, n)
+        n += len(hoja["comodines"])
+    (ROOT / "comodines.lua").write_text("\n".join(out), encoding="utf-8")
+    print("escrito comodines.lua")
+
+
+def generar_lua_hoja(hoja, inicio):
+    out = []
+    cols = hoja["cols"]
+    for i, c in enumerate(hoja["comodines"]):
         cfg = ", ".join("%s = %s" % (k, lua_valor(v)) for k, v in c["cfg"].items())
-        out.append("-- %d. %s" % (i + 1, c["nombre"]))
+        out.append("-- %d. %s" % (inicio + i + 1, c["nombre"]))
         out.append("do")
         if c["pasivo"]:
             args = ", ".join("%s = %s" % (k, v) for k, v in c["pasivo"].items())
@@ -119,8 +152,8 @@ def generar_lua():
         out.append("        config = { extra = { %s } }," % cfg)
         out.append("        rarity = %d," % c["rareza"])
         out.append("        cost = %d," % c["coste"])
-        out.append('        atlas = "cartas",')
-        out.append("        pos = { x = %d, y = %d }," % (i % COLS, i // COLS))
+        out.append('        atlas = "%s",' % hoja["atlas"])
+        out.append("        pos = { x = %d, y = %d }," % (i % cols, i // cols))
         out.append("        blueprint_compat = %s," % ("true" if c["bp"] else "false"))
         out.append("        loc_vars = function(self, info_queue, card)")
         out.append("            local e = card.ability.extra")
@@ -136,8 +169,7 @@ def generar_lua():
         out.append("    }")
         out.append("end")
         out.append("")
-    (ROOT / "comodines.lua").write_text("\n".join(out), encoding="utf-8")
-    print("escrito comodines.lua")
+    return out
 
 
 # ---------------------------------------------------------------- docs
@@ -152,25 +184,47 @@ def texto_plano(c):
     return " ".join(lineas).replace(" )", ")")
 
 
+def resumen_rarezas(lista):
+    cuenta = {r: 0 for r in RAREZAS}
+    for c in lista:
+        cuenta[c["rareza"]] += 1
+    return " · ".join("%s: %d" % (RAREZAS[r], n) for r, n in cuenta.items())
+
+
 def generar_docs():
-    filas = ["# Especificaciones de los 100 comodines", "",
+    todos = [c for hoja in HOJAS for c in hoja["comodines"]]
+    filas = ["# Especificaciones de los %d comodines" % len(todos), "",
              "Generado por `tools/generar_comodines.py`. La posición indica fila y columna",
-             "en la hoja de sprites (`assets/fuente/hoja_comodines.webp`).", ""]
-    resumen = {r: 0 for r in RAREZAS}
-    for c in COMODINES:
-        resumen[c["rareza"]] += 1
-    filas.append("**Rarezas:** " + " · ".join("%s: %d" % (RAREZAS[r], n) for r, n in resumen.items()))
-    filas += ["", "| # | Pos. | Comodín | Rareza | Coste | Efecto | Blueprint |",
-              "|---|---|---|---|---|---|---|"]
-    for i, c in enumerate(COMODINES):
-        filas.append("| %d | F%d·C%d | **%s** | %s | $%d | %s | %s |" % (
-            i + 1, i // COLS + 1, i % COLS + 1, c["nombre"], RAREZAS[c["rareza"]],
-            c["coste"], texto_plano(c), "Sí" if c["bp"] else "No"))
+             "en su hoja de sprites (`assets/fuente/`).", "",
+             "**Rarezas en total:** " + resumen_rarezas(todos)]
+    n = 0
+    for h, hoja in enumerate(HOJAS, 1):
+        cols = hoja["cols"]
+        filas += ["", "## Hoja %d · `%s`" % (h, hoja["fuente"]), "",
+                  "%d comodines. %s" % (len(hoja["comodines"]), resumen_rarezas(hoja["comodines"])), "",
+                  "| # | Pos. | Comodín | Rareza | Coste | Efecto | Blueprint |",
+                  "|---|---|---|---|---|---|---|"]
+        for i, c in enumerate(hoja["comodines"]):
+            n += 1
+            filas.append("| %d | F%d·C%d | **%s** | %s | $%d | %s | %s |" % (
+                n, i // cols + 1, i % cols + 1, c["nombre"], RAREZAS[c["rareza"]],
+                c["coste"], texto_plano(c), "Sí" if c["bp"] else "No"))
     (ROOT / "COMODINES.md").write_text("\n".join(filas) + "\n", encoding="utf-8")
     print("escrito COMODINES.md")
 
 
+def comprobar():
+    todos = [c for hoja in HOJAS for c in hoja["comodines"]]
+    claves = [c["key"] for c in todos]
+    repetidas = {k for k in claves if claves.count(k) > 1}
+    assert not repetidas, "claves repetidas: %s" % repetidas
+    for hoja in HOJAS:
+        assert len(hoja["comodines"]) == hoja["cols"] * hoja["filas"], hoja["fuente"]
+
+
 if __name__ == "__main__":
-    generar_atlas()
+    comprobar()
+    for hoja in HOJAS:
+        generar_atlas(hoja)
     generar_lua()
     generar_docs()

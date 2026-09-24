@@ -254,7 +254,8 @@ function KAS.scale(o)
                         return { message = localize('k_eaten_ex'), colour = G.C.RED }
                     end
                     if e.gain < 0 then
-                        return { message = localize { type = 'variable', key = 'a_mult_minus', vars = { -e.gain } }, colour = G.C.RED }
+                        local clave = ({ chips = 'a_chips_minus', xmult = 'a_xmult_minus' })[o.field] or 'a_mult_minus'
+                        return { message = localize { type = 'variable', key = clave, vars = { -e.gain } }, colour = G.C.RED }
                     end
                     return { message = localize('k_upgrade_ex'), colour = G.C.FILTER }
                 end
@@ -276,6 +277,29 @@ function KAS.create(on, set, seed)
         local e = card.ability.extra
         if on(context, card, e) and (not e.odds or suerte(seed, e.odds)) then
             return KAS.crear(set)
+        end
+    end
+end
+
+-- Efecto por cada carta retenida en la mano que cumpla pred (solo mult/xmult)
+function KAS.held(pred)
+    return function(self, card, context)
+        local e = card.ability.extra
+        if context.individual and context.cardarea == G.hand and not context.end_of_round
+            and pred(context.other_card, context, e) then
+            if context.other_card.debuff then
+                return { message = localize('k_debuffed'), colour = G.C.RED }
+            end
+            return { mult = e.mult, xmult = e.xmult }
+        end
+    end
+end
+
+-- Ganas e.dollars por cada carta descartada que cumpla pred
+function KAS.discard_money(pred)
+    return function(self, card, context)
+        if context.discard and pred(context.other_card, context, card.ability.extra) then
+            KAS.dinero(card, card.ability.extra.dollars)
         end
     end
 end

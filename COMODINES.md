@@ -1,9 +1,13 @@
-# Especificaciones de los 100 comodines
+# Especificaciones de los 217 comodines
 
 Generado por `tools/generar_comodines.py`. La posición indica fila y columna
-en la hoja de sprites (`assets/fuente/hoja_comodines.webp`).
+en su hoja de sprites (`assets/fuente/`).
 
-**Rarezas:** Común: 47 · Poco común: 35 · Raro: 13 · Legendario: 5
+**Rarezas en total:** Común: 106 · Poco común: 81 · Raro: 21 · Legendario: 9
+
+## Hoja 1 · `hoja_comodines.webp`
+
+100 comodines. Común: 47 · Poco común: 35 · Raro: 13 · Legendario: 5
 
 | # | Pos. | Comodín | Rareza | Coste | Efecto | Blueprint |
 |---|---|---|---|---|---|---|
@@ -107,3 +111,134 @@ en la hoja de sprites (`assets/fuente/hoja_comodines.webp`).
 | 98 | F10·C8 | **Bufón del Mundo** | Legendario | $20 | Reactiva todas las cartas puntuadas | Sí |
 | 99 | F10·C9 | **Corona Cósmica** | Legendario | $20 | Gana X1 multi al derrotar una ciega jefe (Actual: X1 multi) | Sí |
 | 100 | F10·C10 | **Bufón Arcoíris** | Legendario | $20 | X1.5 multi por cada palo distinto en la mano puntuada | Sí |
+
+## Hoja 2 · `hoja_comodines_2.webp`
+
+65 comodines. Común: 31 · Poco común: 27 · Raro: 5 · Legendario: 2
+
+| # | Pos. | Comodín | Rareza | Coste | Efecto | Blueprint |
+|---|---|---|---|---|---|---|
+| 101 | F1·C1 | **Bufón Infernal** | Raro | $8 | Gana X0.05 multi por cada mano jugada en la partida (Actual: X1 multi) | Sí |
+| 102 | F1·C2 | **Aprendiz de Mago** | Poco común | $6 | Si la mano contiene un Full, crea una carta de Tarot (Debe haber espacio) | Sí |
+| 103 | F1·C3 | **Espíritu de Hielo** | Común | $5 | Cada carta de Picas que tengas en la mano da +3 multi | Sí |
+| 104 | F1·C4 | **Robot Dorado** | Poco común | $6 | X1.5 multi si tienes $20 o más | Sí |
+| 105 | F1·C5 | **Ciprés Esmeralda** | Común | $4 | +15 multi si la mano jugada contiene Color | Sí |
+| 106 | F1·C6 | **Galaxia Espiral** | Poco común | $6 | Si la mano jugada es Carta alta, crea una carta de Planeta (Debe haber espacio) | Sí |
+| 107 | F1·C7 | **El Anciano** | Común | $5 | +5 fichas por cada ronda de la partida | Sí |
+| 108 | F1·C8 | **Zorro Nocturno** | Común | $4 | Cada carta de Diamantes puntuada da +30 fichas | Sí |
+| 109 | F1·C9 | **Gato de Esmoquin** | Común | $4 | Cada carta de Picas puntuada da +30 fichas | Sí |
+| 110 | F1·C10 | **Perro Santo** | Poco común | $7 | Cada carta de Corazones puntuada da $1 | Sí |
+| 111 | F1·C11 | **Gato Murciélago** | Poco común | $6 | Gana +1 multi por cada carta de Picas puntuada (Actual: +0 multi) | Sí |
+| 112 | F1·C12 | **Estrella Azul** | Poco común | $6 | X1.5 multi si la mano jugada contiene Color | Sí |
+| 113 | F1·C13 | **Payaso Psicodélico** | Poco común | $7 | Da entre X1 y X3 multi al azar | Sí |
+| 114 | F2·C1 | **Sombra Encapuchada** | Poco común | $6 | X2 multi si no te quedan descartes | Sí |
+| 115 | F2·C2 | **Payaso Mago** | Común | $5 | +5 multi por cada carta de Tarot que tengas | Sí |
+| 116 | F2·C3 | **Máscara de Calabaza** | Común | $4 | +13 multi si juegas exactamente 4 cartas | Sí |
+| 117 | F2·C4 | **Bufón Carmesí** | Común | $4 | Cada carta de Corazones puntuada da +30 fichas | Sí |
+| 118 | F2·C5 | **Runa Lunar** | Poco común | $6 | 1 entre 2 probabilidades de crear una carta de Tarot al seleccionar la ciega | Sí |
+| 119 | F2·C6 | **Pantera** | Poco común | $7 | Gana X0.1 multi cada vez que juegas 5 cartas (Actual: X1 multi) | Sí |
+| 120 | F2·C7 | **Payaso Rockero** | Común | $4 | +20 multi si la mano jugada contiene Póker | Sí |
+| 121 | F2·C8 | **Rey Oscuro** | Raro | $8 | Cada Rey que tengas en la mano da X1.5 multi | Sí |
+| 122 | F2·C9 | **Máscara Alada** | Poco común | $7 | Reactiva cada carta de Diamantes puntuada | Sí |
+| 123 | F2·C10 | **Emperador** | Raro | $9 | Cada carta de figura que tengas en la mano da X1.2 multi | Sí |
+| 124 | F2·C11 | **Ídolo Dorado** | Poco común | $7 | Cada As puntuado da $2 | Sí |
+| 125 | F2·C12 | **Demonio Rojo** | Común | $4 | +12 multi si la mano jugada contiene Trío | Sí |
+| 126 | F2·C13 | **Cíclope** | Poco común | $6 | X3 multi si juegas una sola carta | Sí |
+| 127 | F3·C1 | **Encapuchado Llameante** | Común | $5 | Gana +2 multi por cada carta de Corazones descartada (Actual: +0 multi) | Sí |
+| 128 | F3·C2 | **Duende Naranja** | Común | $5 | Ganas $1 por cada carta de Diamantes descartada | No |
+| 129 | F3·C3 | **Espíritu Violeta** | Común | $3 | Al venderlo, crea una carta de Planeta | No |
+| 130 | F3·C4 | **Fantasma Azul** | Común | $4 | +20 fichas por cada descarte usado esta ronda | Sí |
+| 131 | F3·C5 | **Cuchilla de Cristal** | Poco común | $7 | Gana X0.2 multi cada vez que juegas un Color (Actual: X1 multi) | Sí |
+| 132 | F3·C6 | **Bufón Dorado** | Común | $6 | Ganas $4 al final de la ronda | No |
+| 133 | F3·C7 | **Caballero Oscuro** | Poco común | $6 | Cada J puntuado da X1.5 multi | Sí |
+| 134 | F3·C8 | **Payaso Demonio** | Común | $4 | Cada 4 puntuado da +8 multi | Sí |
+| 135 | F3·C9 | **Bruja** | Poco común | $7 | Crea una carta Espectral al derrotar una ciega jefe (Debe haber espacio) | Sí |
+| 136 | F3·C10 | **Lince** | Común | $4 | Cada 9 puntuado da +9 multi | Sí |
+| 137 | F3·C11 | **Cohete** | Común | $5 | Gana +8 fichas por cada mano jugada (Actual: +0 fichas) | Sí |
+| 138 | F3·C12 | **Bufón Brujo** | Poco común | $6 | Crea una carta de Planeta al seleccionar la ciega (Debe haber espacio) | Sí |
+| 139 | F3·C13 | **Farol Naranja** | Común | $4 | +2 multi por cada carta que tengas en la mano | Sí |
+| 140 | F4·C1 | **Payaso Fantasma** | Poco común | $6 | 1 entre 3 probabilidades de dar X3 multi | Sí |
+| 141 | F4·C2 | **Cáliz Dorado** | Común | $5 | Al final de la ronda ganas $1 por cada mano restante | No |
+| 142 | F4·C3 | **Hombre Misterioso** | Común | $4 | +15 multi si la mano jugada es Carta alta | Sí |
+| 143 | F4·C4 | **Pulpo Mago** | Poco común | $6 | Reactiva cada 8 puntuado | Sí |
+| 144 | F4·C5 | **León Solar** | Poco común | $7 | Cada carta de Diamantes puntuada da X1.2 multi | Sí |
+| 145 | F4·C6 | **Gato de Saturno** | Común | $5 | +15 multi si tienes al menos una carta de Planeta | Sí |
+| 146 | F4·C7 | **Sol Ardiente** | Común | $5 | +20 multi en la primera mano de la ronda | Sí |
+| 147 | F4·C8 | **Ojo del Mosaico** | Común | $5 | +3 fichas por cada carta de figura en tu baraja completa | Sí |
+| 148 | F4·C9 | **Bufón Colorido** | Común | $3 | +4 multi y +30 fichas | Sí |
+| 149 | F4·C10 | **Rey León** | Poco común | $7 | X2 multi si la mano puntuada contiene un Rey | Sí |
+| 150 | F4·C11 | **Calavera Maga** | Común | $5 | Ganas $2 cada vez que usas una carta de Tarot | Sí |
+| 151 | F4·C12 | **Esqueleto Mecánico** | Común | $4 | Cada 2 o 3 puntuado da +20 fichas y +2 multi | Sí |
+| 152 | F4·C13 | **Rey de los Bufones** | Legendario | $20 | Reactiva cada carta de figura puntuada 2 veces más | Sí |
+| 153 | F5·C1 | **Lince Marrón** | Común | $4 | Cada 5 puntuado da +5 multi y +25 fichas | Sí |
+| 154 | F5·C2 | **Perro Lila** | Poco común | $6 | X1.5 multi si la mano jugada contiene Doble pareja | Sí |
+| 155 | F5·C3 | **Hombre Lobo** | Raro | $8 | X2.5 multi si la mano jugada contiene Póker | Sí |
+| 156 | F5·C4 | **Duende Verde** | Común | $5 | Ganas $1 si la mano jugada contiene una Pareja | Sí |
+| 157 | F5·C5 | **Bestia Sombría** | Poco común | $8 | +X1 multi por cada espacio de comodín vacío (Este comodín cuenta como vacío) | Sí |
+| 158 | F5·C6 | **Gato Bufón** | Poco común | $6 | Cada carta de Tréboles puntuada da $1 | Sí |
+| 159 | F5·C7 | **Sumo Sacerdote** | Poco común | $7 | Crea una carta de Tarot cada vez que usas un Planeta (Debe haber espacio) | Sí |
+| 160 | F5·C8 | **Rueda de la Fortuna** | Poco común | $6 | 1 entre 5 probabilidades de ganar $10 al jugar una mano | Sí |
+| 161 | F5·C9 | **Calabaza Duende** | Común | $5 | +25 multi, pierde 1 multi por mano jugada | Sí |
+| 162 | F5·C10 | **Luna Partida** | Poco común | $6 | X1.5 multi si la mano puntuada tiene cartas rojas y negras | Sí |
+| 163 | F5·C11 | **Esqueleto Dorado** | Común | $5 | Ganas $4 al final de la ronda si tienes menos de $10 | No |
+| 164 | F5·C12 | **Ojo del Vacío** | Raro | $8 | Gana X0.5 multi cada vez que usas una carta Espectral (Actual: X1 multi) | Sí |
+| 165 | F5·C13 | **Tótem Verde** | Legendario | $20 | En la primera mano de la ronda: X2 multi y reactiva todas las cartas puntuadas | Sí |
+
+## Hoja 3 · `hoja_comodines_3.webp`
+
+52 comodines. Común: 28 · Poco común: 19 · Raro: 3 · Legendario: 2
+
+| # | Pos. | Comodín | Rareza | Coste | Efecto | Blueprint |
+|---|---|---|---|---|---|---|
+| 166 | F1·C1 | **Bufón Azur** | Común | $3 | +50 fichas | Sí |
+| 167 | F1·C2 | **Bufoncillo** | Común | $3 | +12 multi si juegas 2 cartas o menos | Sí |
+| 168 | F1·C3 | **Gran Bufón** | Común | $5 | +3 multi por cada carta puntuada | Sí |
+| 169 | F1·C4 | **Bufón Morado** | Poco común | $7 | Gana X0.1 multi cada vez que juegas una Pareja (Actual: X1 multi) | Sí |
+| 170 | F1·C5 | **Calavera de Espadas** | Poco común | $6 | Cada carta de Picas puntuada tiene 1 entre 2 probabilidades de dar X1.5 multi | Sí |
+| 171 | F1·C6 | **Bufón del Bosque** | Común | $4 | Cada carta de Tréboles que tengas en la mano da +3 multi | Sí |
+| 172 | F1·C7 | **Gato Esmeralda** | Poco común | $7 | Reactiva cada carta de Tréboles puntuada | Sí |
+| 173 | F1·C8 | **Simio Fantasma** | Común | $4 | +20 fichas por cada comodín que tengas | Sí |
+| 174 | F1·C9 | **Zorro Rojo** | Común | $5 | Ganas $1 por cada carta de Corazones descartada | No |
+| 175 | F1·C10 | **Gato Azul** | Poco común | $7 | Reactiva cada carta de Picas puntuada | Sí |
+| 176 | F1·C11 | **Simio Bufón** | Común | $4 | +4 multi por cada mano ya jugada esta ronda | Sí |
+| 177 | F1·C12 | **León Dorado** | Poco común | $7 | Cada carta de figura puntuada da +3 multi y $1 | Sí |
+| 178 | F1·C13 | **Demonio Blanco** | Raro | $8 | X3 multi; 1 entre 8 probabilidades de destruirse al final de la ronda | Sí |
+| 179 | F2·C1 | **Bufón Real** | Poco común | $7 | Reactiva cada Rey puntuado | Sí |
+| 180 | F2·C2 | **Científico Loco** | Común | $5 | Gana +10 fichas cada vez que usas una carta de Tarot (Actual: +0 fichas) | Sí |
+| 181 | F2·C3 | **Duende del Sombrero** | Común | $4 | Ganas $3 si la mano jugada contiene una Escalera | Sí |
+| 182 | F2·C4 | **Conejo Rosa** | Común | $3 | Cada 2 puntuado da +6 multi | Sí |
+| 183 | F2·C5 | **Bufón de la Llama** | Común | $5 | Gana +5 multi cada vez que juegas un Color (Actual: +0 multi) | Sí |
+| 184 | F2·C6 | **Husky** | Común | $4 | Cada 7 u 8 puntuado da +20 fichas | Sí |
+| 185 | F2·C7 | **Bufón Cortesano** | Común | $5 | Cada Reina que tengas en la mano da +6 multi | Sí |
+| 186 | F2·C8 | **Gata Bufona** | Poco común | $6 | +X0.2 multi por cada carta de Corazones puntuada | Sí |
+| 187 | F2·C9 | **Gato de la Suerte** | Poco común | $7 | 1 entre 7 probabilidades de dar X7 multi | Sí |
+| 188 | F2·C10 | **Planeta Azul** | Poco común | $6 | +10 fichas por cada nivel de la mano jugada | Sí |
+| 189 | F2·C11 | **Fantasma Mago** | Común | $4 | Gana +5 multi cada vez que usas una carta Espectral (Actual: +0 multi) | Sí |
+| 190 | F2·C12 | **Faro** | Poco común | $6 | X1.5 multi si te quedan 4 o más cartas en la mano | Sí |
+| 191 | F2·C13 | **Gato Brujo** | Poco común | $6 | Al seleccionar la ciega, ganas +1 descarte | Sí |
+| 192 | F3·C1 | **Perro Calavera** | Común | $5 | Gana +3 fichas por cada carta descartada (Actual: +0 fichas) | Sí |
+| 193 | F3·C2 | **Brujo Sombrío** | Poco común | $7 | X2 multi si tienes al menos una carta de Tarot | Sí |
+| 194 | F3·C3 | **Conejo Blanco** | Poco común | $6 | +2 descartes por ronda, -1 mano por ronda | No |
+| 195 | F3·C4 | **Luna Violeta** | Común | $5 | Si la mano contiene una Doble pareja, crea una carta de Tarot (Debe haber espacio) | Sí |
+| 196 | F3·C5 | **Oso Carmesí** | Común | $4 | +20 multi si la mano jugada contiene Full | Sí |
+| 197 | F3·C6 | **Boston Terrier** | Común | $4 | Cada carta par que tengas en la mano da +2 multi | Sí |
+| 198 | F3·C7 | **Lingote de Oro** | Común | $6 | Ganas $5 al final de la ronda si no has usado descartes | No |
+| 199 | F3·C8 | **Cristal Rosa** | Poco común | $6 | Cada Reina puntuado da X1.5 multi | Sí |
+| 200 | F3·C9 | **Cubo de Hielo** | Común | $5 | +100 fichas, pierde 5 fichas por mano jugada | Sí |
+| 201 | F3·C10 | **Zorro Paciente** | Común | $5 | Gana +2 multi al final de cada ronda (Actual: +0 multi) | Sí |
+| 202 | F3·C11 | **Rey Demonio** | Raro | $8 | X1.5 multi por cada Rey en la mano puntuada | Sí |
+| 203 | F3·C12 | **El Encapuchado** | Común | $4 | +80 fichas si la mano jugada contiene Color | Sí |
+| 204 | F3·C13 | **Lámpara Dorada** | Legendario | $20 | X2 multi Crea una carta Espectral al seleccionar la ciega | Sí |
+| 205 | F4·C1 | **Lobo Violeta** | Común | $4 | +10 multi si tienes 3 comodines o más | Sí |
+| 206 | F4·C2 | **Bufón del Sol** | Común | $5 | Cada carta roja puntuada da +2 multi y +10 fichas | Sí |
+| 207 | F4·C3 | **Calavera Dorada** | Poco común | $7 | Cada As puntuado da X1.5 multi | Sí |
+| 208 | F4·C4 | **Bufón Nocturno** | Común | $4 | +20 multi en la última mano de la ronda | Sí |
+| 209 | F4·C5 | **Duende Bufón** | Común | $4 | Cada J o Reina puntuado da +20 fichas | Sí |
+| 210 | F4·C6 | **Llama Azul** | Poco común | $7 | Gana X0.05 multi por cada carta de Picas puntuada (Actual: X1 multi) | Sí |
+| 211 | F4·C7 | **Dado Rojo** | Poco común | $6 | 1 entre 6 probabilidades de dar X6 multi | Sí |
+| 212 | F4·C8 | **Conde Vampiro** | Raro | $8 | Gana X0.1 multi por cada carta de Corazones puntuada (Actual: X1 multi) | Sí |
+| 213 | F4·C9 | **Orbe Demoníaco** | Poco común | $6 | X2 multi, pierde X0.1 por mano jugada | Sí |
+| 214 | F4·C10 | **Meteorito** | Poco común | $6 | +10 fichas por cada carta de Planeta usada en la partida | Sí |
+| 215 | F4·C11 | **Calavera Bruja** | Común | $4 | +2 multi por cada carta de Tarot usada en la partida | Sí |
+| 216 | F4·C12 | **Dado Azul** | Común | $4 | Da entre +10 y +100 fichas al azar | Sí |
+| 217 | F4·C13 | **Máscara Dorada** | Legendario | $20 | Cada carta de figura puntuada da X1.5 multi | Sí |

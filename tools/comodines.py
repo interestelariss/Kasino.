@@ -51,6 +51,24 @@ def crear(key, nombre, rareza, coste, texto, set_, on, odds=None):
              'KAS.create(%s, "%s", %s)' % (on, set_, seed), bp=True)
 
 
+FMT = {"mult": MULT, "chips": CHIPS, "xmult": XMULT, "dollars": "{C:money}$#%d#{}"}
+
+
+def rango(key, nombre, rareza, coste, ranks, etiqueta, efectos):
+    """Cada carta puntuada de esos valores da los efectos (dict campo -> valor)."""
+    partes = [FMT[k] % (i + 1) for i, k in enumerate(efectos)]
+    return J(key, nombre, rareza, coste,
+             ["Cada %s puntuado" % etiqueta, "da " + " y ".join(partes)],
+             dict(efectos), list(efectos), "KAS.per_card(KAS.rank(%s))" % ", ".join(map(str, ranks)))
+
+
+def retenida(key, nombre, rareza, coste, pred, etiqueta, campo, valor):
+    """Cada carta que tengas en la mano (sin jugar) que cumpla pred da el efecto."""
+    return J(key, nombre, rareza, coste,
+             ["Cada %s que tengas" % etiqueta, "en la mano da " + FMT[campo] % 1],
+             {campo: valor}, [campo], "KAS.held(%s)" % pred)
+
+
 ACTUAL_X = "{C:inactive}(Actual: {X:mult,C:white} X#%d# {C:inactive} multi)"
 ACTUAL_M = "{C:inactive}(Actual: {C:mult}+#%d#{C:inactive} multi)"
 ACTUAL_C = "{C:inactive}(Actual: {C:chips}+#%d#{C:inactive} fichas)"

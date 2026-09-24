@@ -1,5 +1,9 @@
 --- GENERADO por tools/generar_comodines.py: no editar a mano.
---- Los 100 comodines de la hoja de sprites (atlas kasino_cartas).
+--- Comodines de las hojas de sprites de assets/fuente.
+
+SMODS.Atlas { key = "cartas", path = "kasino_cartas.png", px = 71, py = 95 }
+SMODS.Atlas { key = "cartas2", path = "kasino_cartas_2.png", px = 71, py = 95 }
+SMODS.Atlas { key = "cartas3", path = "kasino_cartas_3.png", px = 71, py = 95 }
 
 -- 1. Bufón Clásico
 do
@@ -2536,5 +2540,2958 @@ do
             return { vars = { e.xmult } }
         end,
         calculate = KAS.dyn(function(card, context, e) local n = KAS.palos_distintos(context) if n > 0 then return { xmult = e.xmult ^ n } end end),
+    }
+end
+
+-- 101. Bufón Infernal
+do
+    SMODS.Joker {
+        key = "bufon_infernal",
+        loc_txt = {
+            name = "Bufón Infernal",
+            text = {
+                "Gana {X:mult,C:white} X#1# {} multi por cada",
+                "mano jugada en la partida",
+                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 0.05, xmult = 1 } },
+        rarity = 3,
+        cost = 8,
+        atlas = "cartas2",
+        pos = { x = 0, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.xmult } }
+        end,
+        calculate = KAS.scale{ field = 'xmult', on = KAS.T.hand_played },
+    }
+end
+
+-- 102. Aprendiz de Mago
+do
+    SMODS.Joker {
+        key = "aprendiz_mago",
+        loc_txt = {
+            name = "Aprendiz de Mago",
+            text = {
+                "Si la mano contiene un {C:attention}Full{},",
+                "crea una carta de {C:tarot}Tarot{}",
+                "{C:inactive}(Debe haber espacio)",
+            },
+        },
+        config = { extra = {  } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 1, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.create(KAS.T.hand_type("Full House"), "Tarot", nil),
+    }
+end
+
+-- 103. Espíritu de Hielo
+do
+    SMODS.Joker {
+        key = "espiritu_hielo",
+        loc_txt = {
+            name = "Espíritu de Hielo",
+            text = {
+                "Cada carta de {C:spades}Picas{} que tengas",
+                "en la mano da {C:mult}+#1#{} multi",
+            },
+        },
+        config = { extra = { mult = 3 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 2, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.held(KAS.suit("Spades")),
+    }
+end
+
+-- 104. Robot Dorado
+do
+    SMODS.Joker {
+        key = "robot_dorado",
+        loc_txt = {
+            name = "Robot Dorado",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si tienes",
+                "{C:money}$#2#{} o más",
+            },
+        },
+        config = { extra = { xmult = 1.5, min = 20 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 3, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult, e.min } }
+        end,
+        calculate = KAS.cond(function(card, context, e) return G.GAME.dollars >= e.min end),
+    }
+end
+
+-- 105. Ciprés Esmeralda
+do
+    SMODS.Joker {
+        key = "cipres_esmeralda",
+        loc_txt = {
+            name = "Ciprés Esmeralda",
+            text = {
+                "{C:mult}+#1#{} multi si la mano",
+                "jugada contiene {C:attention}Color{}",
+            },
+        },
+        config = { extra = { mult = 15 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 4, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.hand("Flush"),
+    }
+end
+
+-- 106. Galaxia Espiral
+do
+    SMODS.Joker {
+        key = "galaxia_espiral",
+        loc_txt = {
+            name = "Galaxia Espiral",
+            text = {
+                "Si la mano jugada es {C:attention}Carta alta{},",
+                "crea una carta de {C:planet}Planeta{}",
+                "{C:inactive}(Debe haber espacio)",
+            },
+        },
+        config = { extra = {  } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 5, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.create(function(context) return context.before and context.scoring_name == 'High Card' end, "Planet", nil),
+    }
+end
+
+-- 107. El Anciano
+do
+    SMODS.Joker {
+        key = "el_anciano",
+        loc_txt = {
+            name = "El Anciano",
+            text = {
+                "{C:chips}+#1#{} fichas por cada",
+                "{C:attention}ronda{} de la partida",
+            },
+        },
+        config = { extra = { chips = 5 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 6, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) return { chips = e.chips * G.GAME.round } end),
+    }
+end
+
+-- 108. Zorro Nocturno
+do
+    SMODS.Joker {
+        key = "zorro_nocturno",
+        loc_txt = {
+            name = "Zorro Nocturno",
+            text = {
+                "Cada carta de {C:diamonds}Diamantes{} puntuada",
+                "da {C:chips}+#1#{} fichas",
+            },
+        },
+        config = { extra = { chips = 30 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 7, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.per_card(KAS.suit("Diamonds")),
+    }
+end
+
+-- 109. Gato de Esmoquin
+do
+    SMODS.Joker {
+        key = "gato_esmoquin",
+        loc_txt = {
+            name = "Gato de Esmoquin",
+            text = {
+                "Cada carta de {C:spades}Picas{} puntuada",
+                "da {C:chips}+#1#{} fichas",
+            },
+        },
+        config = { extra = { chips = 30 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 8, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.per_card(KAS.suit("Spades")),
+    }
+end
+
+-- 110. Perro Santo
+do
+    SMODS.Joker {
+        key = "perro_santo",
+        loc_txt = {
+            name = "Perro Santo",
+            text = {
+                "Cada carta de {C:hearts}Corazones{} puntuada",
+                "da {C:money}$#1#{}",
+            },
+        },
+        config = { extra = { dollars = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 9, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calculate = KAS.per_card(KAS.suit("Hearts")),
+    }
+end
+
+-- 111. Gato Murciélago
+do
+    SMODS.Joker {
+        key = "gato_murcielago",
+        loc_txt = {
+            name = "Gato Murciélago",
+            text = {
+                "Gana {C:mult}+#1#{} multi por cada carta",
+                "de {C:spades}Picas{} puntuada",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 1, mult = 0 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 10, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.mult } }
+        end,
+        calculate = KAS.scale{ field = 'mult', on = function(context) return context.before and KAS.contar(context.scoring_hand, KAS.suit('Spades')) end },
+    }
+end
+
+-- 112. Estrella Azul
+do
+    SMODS.Joker {
+        key = "estrella_azul",
+        loc_txt = {
+            name = "Estrella Azul",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si la mano",
+                "jugada contiene {C:attention}Color{}",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 11, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.hand("Flush"),
+    }
+end
+
+-- 113. Payaso Psicodélico
+do
+    SMODS.Joker {
+        key = "payaso_psicodelico",
+        loc_txt = {
+            name = "Payaso Psicodélico",
+            text = {
+                "Da entre {X:mult,C:white} X#1# {} y {X:mult,C:white} X#2# {}",
+                "multi al azar",
+            },
+        },
+        config = { extra = { min = 1, max = 3 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 12, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.min, e.max } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local x = e.min + (e.max - e.min) * pseudorandom('kas_payaso_psicodelico') return { xmult = math.floor(x * 10 + 0.5) / 10 } end),
+    }
+end
+
+-- 114. Sombra Encapuchada
+do
+    SMODS.Joker {
+        key = "sombra_encapuchada",
+        loc_txt = {
+            name = "Sombra Encapuchada",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si no te",
+                "quedan {C:attention}descartes{}",
+            },
+        },
+        config = { extra = { xmult = 2 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 0, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.cond(function() return G.GAME.current_round.discards_left == 0 end),
+    }
+end
+
+-- 115. Payaso Mago
+do
+    SMODS.Joker {
+        key = "payaso_mago",
+        loc_txt = {
+            name = "Payaso Mago",
+            text = {
+                "{C:mult}+#1#{} multi por cada carta",
+                "de {C:tarot}Tarot{} que tengas",
+            },
+        },
+        config = { extra = { mult = 5 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 1, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = 0 for _, c in ipairs(G.consumeables.cards) do if c.ability.set == 'Tarot' then n = n + 1 end end if n > 0 then return { mult = e.mult * n } end end),
+    }
+end
+
+-- 116. Máscara de Calabaza
+do
+    SMODS.Joker {
+        key = "mascara_calabaza",
+        loc_txt = {
+            name = "Máscara de Calabaza",
+            text = {
+                "{C:mult}+#1#{} multi si juegas",
+                "exactamente {C:attention}#2#{} cartas",
+            },
+        },
+        config = { extra = { mult = 13, cards = 4 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 2, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult, e.cards } }
+        end,
+        calculate = KAS.cond(function(card, context, e) return #context.full_hand == e.cards end),
+    }
+end
+
+-- 117. Bufón Carmesí
+do
+    SMODS.Joker {
+        key = "bufon_carmesi",
+        loc_txt = {
+            name = "Bufón Carmesí",
+            text = {
+                "Cada carta de {C:hearts}Corazones{} puntuada",
+                "da {C:chips}+#1#{} fichas",
+            },
+        },
+        config = { extra = { chips = 30 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 3, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.per_card(KAS.suit("Hearts")),
+    }
+end
+
+-- 118. Runa Lunar
+do
+    SMODS.Joker {
+        key = "runa_lunar",
+        loc_txt = {
+            name = "Runa Lunar",
+            text = {
+                "{C:green}#1# entre #2#{} probabilidades de crear",
+                "una carta de {C:tarot}Tarot{} al",
+                "seleccionar la {C:attention}ciega{}",
+            },
+        },
+        config = { extra = { odds = 2 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 4, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { KAS.prob(), e.odds } }
+        end,
+        calculate = KAS.create(KAS.T.blind, "Tarot", "kas_runa_lunar"),
+    }
+end
+
+-- 119. Pantera
+do
+    SMODS.Joker {
+        key = "pantera",
+        loc_txt = {
+            name = "Pantera",
+            text = {
+                "Gana {X:mult,C:white} X#1# {} multi cada vez que",
+                "juegas {C:attention}5{} cartas",
+                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 0.1, xmult = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 5, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.xmult } }
+        end,
+        calculate = KAS.scale{ field = 'xmult', on = function(context) return context.before and #context.full_hand == 5 end },
+    }
+end
+
+-- 120. Payaso Rockero
+do
+    SMODS.Joker {
+        key = "payaso_rockero",
+        loc_txt = {
+            name = "Payaso Rockero",
+            text = {
+                "{C:mult}+#1#{} multi si la mano",
+                "jugada contiene {C:attention}Póker{}",
+            },
+        },
+        config = { extra = { mult = 20 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 6, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.hand("Four of a Kind"),
+    }
+end
+
+-- 121. Rey Oscuro
+do
+    SMODS.Joker {
+        key = "rey_oscuro",
+        loc_txt = {
+            name = "Rey Oscuro",
+            text = {
+                "Cada {C:attention}Rey{} que tengas",
+                "en la mano da {X:mult,C:white} X#1# {} multi",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 3,
+        cost = 8,
+        atlas = "cartas2",
+        pos = { x = 7, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.held(KAS.rank(13)),
+    }
+end
+
+-- 122. Máscara Alada
+do
+    SMODS.Joker {
+        key = "mascara_alada",
+        loc_txt = {
+            name = "Máscara Alada",
+            text = {
+                "Reactiva cada carta",
+                "de {C:diamonds}Diamantes{} puntuada",
+            },
+        },
+        config = { extra = { reps = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 8, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.retrigger(KAS.suit("Diamonds")),
+    }
+end
+
+-- 123. Emperador
+do
+    SMODS.Joker {
+        key = "emperador",
+        loc_txt = {
+            name = "Emperador",
+            text = {
+                "Cada carta de {C:attention}figura{} que tengas",
+                "en la mano da {X:mult,C:white} X#1# {} multi",
+            },
+        },
+        config = { extra = { xmult = 1.2 } },
+        rarity = 3,
+        cost = 9,
+        atlas = "cartas2",
+        pos = { x = 9, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.held(KAS.face),
+    }
+end
+
+-- 124. Ídolo Dorado
+do
+    SMODS.Joker {
+        key = "idolo_dorado",
+        loc_txt = {
+            name = "Ídolo Dorado",
+            text = {
+                "Cada {C:attention}As{} puntuado",
+                "da {C:money}$#1#{}",
+            },
+        },
+        config = { extra = { dollars = 2 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 10, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calculate = KAS.per_card(KAS.rank(14)),
+    }
+end
+
+-- 125. Demonio Rojo
+do
+    SMODS.Joker {
+        key = "demonio_rojo",
+        loc_txt = {
+            name = "Demonio Rojo",
+            text = {
+                "{C:mult}+#1#{} multi si la mano",
+                "jugada contiene {C:attention}Trío{}",
+            },
+        },
+        config = { extra = { mult = 12 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 11, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.hand("Three of a Kind"),
+    }
+end
+
+-- 126. Cíclope
+do
+    SMODS.Joker {
+        key = "ciclope",
+        loc_txt = {
+            name = "Cíclope",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si juegas",
+                "{C:attention}una sola{} carta",
+            },
+        },
+        config = { extra = { xmult = 3 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 12, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.cond(function(card, context) return #context.full_hand == 1 end),
+    }
+end
+
+-- 127. Encapuchado Llameante
+do
+    SMODS.Joker {
+        key = "encapuchado_llameante",
+        loc_txt = {
+            name = "Encapuchado Llameante",
+            text = {
+                "Gana {C:mult}+#1#{} multi por cada carta",
+                "de {C:hearts}Corazones{} descartada",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 2, mult = 0 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 0, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.mult } }
+        end,
+        calculate = KAS.scale{ field = 'mult', on = function(context) return context.discard and context.other_card:is_suit('Hearts') end },
+    }
+end
+
+-- 128. Duende Naranja
+do
+    SMODS.Joker {
+        key = "duende_naranja",
+        loc_txt = {
+            name = "Duende Naranja",
+            text = {
+                "Ganas {C:money}$#1#{} por cada carta",
+                "de {C:diamonds}Diamantes{} descartada",
+            },
+        },
+        config = { extra = { dollars = 1 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 1, y = 2 },
+        blueprint_compat = false,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calculate = KAS.discard_money(KAS.suit("Diamonds")),
+    }
+end
+
+-- 129. Espíritu Violeta
+do
+    SMODS.Joker {
+        key = "espiritu_violeta",
+        loc_txt = {
+            name = "Espíritu Violeta",
+            text = {
+                "Al {C:attention}venderlo{}, crea una",
+                "carta de {C:planet}Planeta{}",
+            },
+        },
+        config = { extra = {  } },
+        rarity = 1,
+        cost = 3,
+        atlas = "cartas2",
+        pos = { x = 2, y = 2 },
+        blueprint_compat = false,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.sell_create("Planet"),
+    }
+end
+
+-- 130. Fantasma Azul
+do
+    SMODS.Joker {
+        key = "fantasma_azul",
+        loc_txt = {
+            name = "Fantasma Azul",
+            text = {
+                "{C:chips}+#1#{} fichas por cada",
+                "{C:attention}descarte{} usado esta ronda",
+            },
+        },
+        config = { extra = { chips = 20 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 3, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = G.GAME.current_round.discards_used if n > 0 then return { chips = e.chips * n } end end),
+    }
+end
+
+-- 131. Cuchilla de Cristal
+do
+    SMODS.Joker {
+        key = "cuchilla_cristal",
+        loc_txt = {
+            name = "Cuchilla de Cristal",
+            text = {
+                "Gana {X:mult,C:white} X#1# {} multi cada vez",
+                "que juegas un {C:attention}Color{}",
+                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 0.2, xmult = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 4, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.xmult } }
+        end,
+        calculate = KAS.scale{ field = 'xmult', on = KAS.T.hand_type('Flush') },
+    }
+end
+
+-- 132. Bufón Dorado
+do
+    SMODS.Joker {
+        key = "bufon_dorado",
+        loc_txt = {
+            name = "Bufón Dorado",
+            text = {
+                "Ganas {C:money}$#1#{} al final",
+                "de la ronda",
+            },
+        },
+        config = { extra = { dollars = 4 } },
+        rarity = 1,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 5, y = 2 },
+        blueprint_compat = false,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calc_dollar_bonus = function(self, card) return card.ability.extra.dollars end,
+    }
+end
+
+-- 133. Caballero Oscuro
+do
+    SMODS.Joker {
+        key = "caballero_oscuro",
+        loc_txt = {
+            name = "Caballero Oscuro",
+            text = {
+                "Cada {C:attention}J{} puntuado",
+                "da {X:mult,C:white} X#1# {} multi",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 6, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.per_card(KAS.rank(11)),
+    }
+end
+
+-- 134. Payaso Demonio
+do
+    SMODS.Joker {
+        key = "payaso_demonio",
+        loc_txt = {
+            name = "Payaso Demonio",
+            text = {
+                "Cada {C:attention}4{} puntuado",
+                "da {C:mult}+#1#{} multi",
+            },
+        },
+        config = { extra = { mult = 8 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 7, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.per_card(KAS.rank(4)),
+    }
+end
+
+-- 135. Bruja
+do
+    SMODS.Joker {
+        key = "bruja",
+        loc_txt = {
+            name = "Bruja",
+            text = {
+                "Crea una carta {C:spectral}Espectral{}",
+                "al derrotar una {C:attention}ciega jefe{}",
+                "{C:inactive}(Debe haber espacio)",
+            },
+        },
+        config = { extra = {  } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 8, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.create(KAS.T.boss, "Spectral", nil),
+    }
+end
+
+-- 136. Lince
+do
+    SMODS.Joker {
+        key = "lince",
+        loc_txt = {
+            name = "Lince",
+            text = {
+                "Cada {C:attention}9{} puntuado",
+                "da {C:mult}+#1#{} multi",
+            },
+        },
+        config = { extra = { mult = 9 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 9, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.per_card(KAS.rank(9)),
+    }
+end
+
+-- 137. Cohete
+do
+    SMODS.Joker {
+        key = "cohete",
+        loc_txt = {
+            name = "Cohete",
+            text = {
+                "Gana {C:chips}+#1#{} fichas por cada",
+                "mano jugada",
+                "{C:inactive}(Actual: {C:chips}+#2#{C:inactive} fichas)",
+            },
+        },
+        config = { extra = { gain = 8, chips = 0 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 10, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.chips } }
+        end,
+        calculate = KAS.scale{ field = 'chips', on = KAS.T.hand_played },
+    }
+end
+
+-- 138. Bufón Brujo
+do
+    SMODS.Joker {
+        key = "bufon_brujo",
+        loc_txt = {
+            name = "Bufón Brujo",
+            text = {
+                "Crea una carta de {C:planet}Planeta{}",
+                "al seleccionar la {C:attention}ciega{}",
+                "{C:inactive}(Debe haber espacio)",
+            },
+        },
+        config = { extra = {  } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 11, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.create(KAS.T.blind, "Planet", nil),
+    }
+end
+
+-- 139. Farol Naranja
+do
+    SMODS.Joker {
+        key = "farol_naranja",
+        loc_txt = {
+            name = "Farol Naranja",
+            text = {
+                "{C:mult}+#1#{} multi por cada carta",
+                "que tengas en la {C:attention}mano{}",
+            },
+        },
+        config = { extra = { mult = 2 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 12, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) if #G.hand.cards > 0 then return { mult = e.mult * #G.hand.cards } end end),
+    }
+end
+
+-- 140. Payaso Fantasma
+do
+    SMODS.Joker {
+        key = "payaso_fantasma",
+        loc_txt = {
+            name = "Payaso Fantasma",
+            text = {
+                "{C:green}#1# entre #2#{} probabilidades",
+                "de dar {X:mult,C:white} X#3# {} multi",
+            },
+        },
+        config = { extra = { odds = 3, xmult = 3 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 0, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { KAS.prob(), e.odds, e.xmult } }
+        end,
+        calculate = KAS.chance("kas_payaso_fantasma"),
+    }
+end
+
+-- 141. Cáliz Dorado
+do
+    SMODS.Joker {
+        key = "caliz_dorado",
+        loc_txt = {
+            name = "Cáliz Dorado",
+            text = {
+                "Al final de la ronda ganas {C:money}$#1#{}",
+                "por cada {C:attention}mano{} restante",
+            },
+        },
+        config = { extra = { dollars = 1 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 1, y = 3 },
+        blueprint_compat = false,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calc_dollar_bonus = function(self, card) local n = G.GAME.current_round.hands_left if n > 0 then return n * card.ability.extra.dollars end end,
+    }
+end
+
+-- 142. Hombre Misterioso
+do
+    SMODS.Joker {
+        key = "hombre_misterioso",
+        loc_txt = {
+            name = "Hombre Misterioso",
+            text = {
+                "{C:mult}+#1#{} multi si la mano",
+                "jugada es {C:attention}Carta alta{}",
+            },
+        },
+        config = { extra = { mult = 15 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 2, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.cond(function(card, context) return context.scoring_name == 'High Card' end),
+    }
+end
+
+-- 143. Pulpo Mago
+do
+    SMODS.Joker {
+        key = "pulpo_mago",
+        loc_txt = {
+            name = "Pulpo Mago",
+            text = {
+                "Reactiva cada {C:attention}8{}",
+                "puntuado",
+            },
+        },
+        config = { extra = { reps = 1 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 3, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.retrigger(KAS.rank(8)),
+    }
+end
+
+-- 144. León Solar
+do
+    SMODS.Joker {
+        key = "leon_solar",
+        loc_txt = {
+            name = "León Solar",
+            text = {
+                "Cada carta de {C:diamonds}Diamantes{} puntuada",
+                "da {X:mult,C:white} X#1# {} multi",
+            },
+        },
+        config = { extra = { xmult = 1.2 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 4, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.per_card(KAS.suit("Diamonds")),
+    }
+end
+
+-- 145. Gato de Saturno
+do
+    SMODS.Joker {
+        key = "gato_saturno",
+        loc_txt = {
+            name = "Gato de Saturno",
+            text = {
+                "{C:mult}+#1#{} multi si tienes al menos",
+                "una carta de {C:planet}Planeta{}",
+            },
+        },
+        config = { extra = { mult = 15 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 5, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.cond(function() for _, c in ipairs(G.consumeables.cards) do if c.ability.set == 'Planet' then return true end end return false end),
+    }
+end
+
+-- 146. Sol Ardiente
+do
+    SMODS.Joker {
+        key = "sol_ardiente",
+        loc_txt = {
+            name = "Sol Ardiente",
+            text = {
+                "{C:mult}+#1#{} multi en la",
+                "{C:attention}primera mano{} de la ronda",
+            },
+        },
+        config = { extra = { mult = 20 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 6, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.cond(KAS.first_hand),
+    }
+end
+
+-- 147. Ojo del Mosaico
+do
+    SMODS.Joker {
+        key = "ojo_mosaico",
+        loc_txt = {
+            name = "Ojo del Mosaico",
+            text = {
+                "{C:chips}+#1#{} fichas por cada carta de",
+                "{C:attention}figura{} en tu baraja completa",
+            },
+        },
+        config = { extra = { chips = 3 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 7, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = KAS.contar(G.playing_cards, KAS.face) if n > 0 then return { chips = e.chips * n } end end),
+    }
+end
+
+-- 148. Bufón Colorido
+do
+    SMODS.Joker {
+        key = "bufon_colorido",
+        loc_txt = {
+            name = "Bufón Colorido",
+            text = {
+                "{C:mult}+#1#{} multi y {C:chips}+#2#{} fichas",
+            },
+        },
+        config = { extra = { mult = 4, chips = 30 } },
+        rarity = 1,
+        cost = 3,
+        atlas = "cartas2",
+        pos = { x = 8, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult, e.chips } }
+        end,
+        calculate = KAS.flat(),
+    }
+end
+
+-- 149. Rey León
+do
+    SMODS.Joker {
+        key = "rey_leon",
+        loc_txt = {
+            name = "Rey León",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si la mano",
+                "puntuada contiene un {C:attention}Rey{}",
+            },
+        },
+        config = { extra = { xmult = 2 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 9, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.rank(13)) > 0 end),
+    }
+end
+
+-- 150. Calavera Maga
+do
+    SMODS.Joker {
+        key = "calavera_maga",
+        loc_txt = {
+            name = "Calavera Maga",
+            text = {
+                "Ganas {C:money}$#1#{} cada vez que",
+                "usas una carta de {C:tarot}Tarot{}",
+            },
+        },
+        config = { extra = { dollars = 2 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 10, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calculate = function(self, card, context) if KAS.T.consumable('Tarot')(context) then KAS.dinero(card, card.ability.extra.dollars) end end,
+    }
+end
+
+-- 151. Esqueleto Mecánico
+do
+    SMODS.Joker {
+        key = "esqueleto_mecanico",
+        loc_txt = {
+            name = "Esqueleto Mecánico",
+            text = {
+                "Cada {C:attention}2{} o {C:attention}3{} puntuado",
+                "da {C:chips}+#1#{} fichas y {C:mult}+#2#{} multi",
+            },
+        },
+        config = { extra = { chips = 20, mult = 2 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 11, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips, e.mult } }
+        end,
+        calculate = KAS.per_card(KAS.rank(2, 3)),
+    }
+end
+
+-- 152. Rey de los Bufones
+do
+    SMODS.Joker {
+        key = "rey_de_los_bufones",
+        loc_txt = {
+            name = "Rey de los Bufones",
+            text = {
+                "Reactiva cada carta de",
+                "{C:attention}figura{} puntuada {C:attention}#1#{} veces más",
+            },
+        },
+        config = { extra = { reps = 2 } },
+        rarity = 4,
+        cost = 20,
+        atlas = "cartas2",
+        pos = { x = 12, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.reps } }
+        end,
+        calculate = KAS.retrigger(KAS.face),
+    }
+end
+
+-- 153. Lince Marrón
+do
+    SMODS.Joker {
+        key = "lince_marron",
+        loc_txt = {
+            name = "Lince Marrón",
+            text = {
+                "Cada {C:attention}5{} puntuado",
+                "da {C:mult}+#1#{} multi y {C:chips}+#2#{} fichas",
+            },
+        },
+        config = { extra = { mult = 5, chips = 25 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas2",
+        pos = { x = 0, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult, e.chips } }
+        end,
+        calculate = KAS.per_card(KAS.rank(5)),
+    }
+end
+
+-- 154. Perro Lila
+do
+    SMODS.Joker {
+        key = "perro_lila",
+        loc_txt = {
+            name = "Perro Lila",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si la mano",
+                "jugada contiene {C:attention}Doble pareja{}",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 1, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.hand("Two Pair"),
+    }
+end
+
+-- 155. Hombre Lobo
+do
+    SMODS.Joker {
+        key = "hombre_lobo",
+        loc_txt = {
+            name = "Hombre Lobo",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si la mano",
+                "jugada contiene {C:attention}Póker{}",
+            },
+        },
+        config = { extra = { xmult = 2.5 } },
+        rarity = 3,
+        cost = 8,
+        atlas = "cartas2",
+        pos = { x = 2, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.hand("Four of a Kind"),
+    }
+end
+
+-- 156. Duende Verde
+do
+    SMODS.Joker {
+        key = "duende_verde",
+        loc_txt = {
+            name = "Duende Verde",
+            text = {
+                "Ganas {C:money}$#1#{} si la mano",
+                "jugada contiene una {C:attention}Pareja{}",
+            },
+        },
+        config = { extra = { dollars = 1 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 3, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calculate = KAS.hand("Pair"),
+    }
+end
+
+-- 157. Bestia Sombría
+do
+    SMODS.Joker {
+        key = "bestia_sombria",
+        loc_txt = {
+            name = "Bestia Sombría",
+            text = {
+                "{X:mult,C:white} +X#1# {} multi por cada",
+                "espacio de {C:attention}comodín{} vacío",
+                "{C:inactive}(Este comodín cuenta como vacío)",
+            },
+        },
+        config = { extra = { step = 1 } },
+        rarity = 2,
+        cost = 8,
+        atlas = "cartas2",
+        pos = { x = 4, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.step } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = G.jokers.config.card_limit - #G.jokers.cards + 1 if n > 0 then return { xmult = 1 + e.step * n } end end),
+    }
+end
+
+-- 158. Gato Bufón
+do
+    SMODS.Joker {
+        key = "gato_bufon",
+        loc_txt = {
+            name = "Gato Bufón",
+            text = {
+                "Cada carta de {C:clubs}Tréboles{} puntuada",
+                "da {C:money}$#1#{}",
+            },
+        },
+        config = { extra = { dollars = 1 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 5, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calculate = KAS.per_card(KAS.suit("Clubs")),
+    }
+end
+
+-- 159. Sumo Sacerdote
+do
+    SMODS.Joker {
+        key = "sumo_sacerdote",
+        loc_txt = {
+            name = "Sumo Sacerdote",
+            text = {
+                "Crea una carta de {C:tarot}Tarot{}",
+                "cada vez que usas un {C:planet}Planeta{}",
+                "{C:inactive}(Debe haber espacio)",
+            },
+        },
+        config = { extra = {  } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas2",
+        pos = { x = 6, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.create(KAS.T.consumable('Planet'), "Tarot", nil),
+    }
+end
+
+-- 160. Rueda de la Fortuna
+do
+    SMODS.Joker {
+        key = "rueda_fortuna",
+        loc_txt = {
+            name = "Rueda de la Fortuna",
+            text = {
+                "{C:green}#1# entre #2#{} probabilidades de",
+                "ganar {C:money}$#3#{} al jugar una mano",
+            },
+        },
+        config = { extra = { odds = 5, dollars = 10 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 7, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { KAS.prob(), e.odds, e.dollars } }
+        end,
+        calculate = KAS.chance("kas_rueda_fortuna"),
+    }
+end
+
+-- 161. Calabaza Duende
+do
+    SMODS.Joker {
+        key = "calabaza_duende",
+        loc_txt = {
+            name = "Calabaza Duende",
+            text = {
+                "{C:mult}+#1#{} multi,",
+                "pierde {C:mult}#2#{} multi por mano jugada",
+            },
+        },
+        config = { extra = { mult = 25, loss = 1, gain = -1 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 8, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult, e.loss } }
+        end,
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.hand_played, destroy_at = 0 },
+    }
+end
+
+-- 162. Luna Partida
+do
+    SMODS.Joker {
+        key = "luna_partida",
+        loc_txt = {
+            name = "Luna Partida",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si la mano puntuada",
+                "tiene cartas {C:hearts}rojas{} y {C:spades}negras{}",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas2",
+        pos = { x = 9, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.suit('Hearts', 'Diamonds')) > 0 and KAS.contar(context.scoring_hand, KAS.suit('Spades', 'Clubs')) > 0 end),
+    }
+end
+
+-- 163. Esqueleto Dorado
+do
+    SMODS.Joker {
+        key = "esqueleto_dorado",
+        loc_txt = {
+            name = "Esqueleto Dorado",
+            text = {
+                "Ganas {C:money}$#1#{} al final de la ronda",
+                "si tienes menos de {C:money}$#2#{}",
+            },
+        },
+        config = { extra = { dollars = 4, max = 10 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas2",
+        pos = { x = 10, y = 4 },
+        blueprint_compat = false,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars, e.max } }
+        end,
+        calc_dollar_bonus = function(self, card) local e = card.ability.extra if G.GAME.dollars < e.max then return e.dollars end end,
+    }
+end
+
+-- 164. Ojo del Vacío
+do
+    SMODS.Joker {
+        key = "ojo_vacio",
+        loc_txt = {
+            name = "Ojo del Vacío",
+            text = {
+                "Gana {X:mult,C:white} X#1# {} multi cada vez",
+                "que usas una carta {C:spectral}Espectral{}",
+                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 0.5, xmult = 1 } },
+        rarity = 3,
+        cost = 8,
+        atlas = "cartas2",
+        pos = { x = 11, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.xmult } }
+        end,
+        calculate = KAS.scale{ field = 'xmult', on = KAS.T.consumable('Spectral') },
+    }
+end
+
+-- 165. Tótem Verde
+do
+    SMODS.Joker {
+        key = "totem_verde",
+        loc_txt = {
+            name = "Tótem Verde",
+            text = {
+                "En la {C:attention}primera mano{} de la ronda:",
+                "{X:mult,C:white} X#1# {} multi y reactiva todas",
+                "las cartas puntuadas",
+            },
+        },
+        config = { extra = { xmult = 2, reps = 1 } },
+        rarity = 4,
+        cost = 20,
+        atlas = "cartas2",
+        pos = { x = 12, y = 4 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.combine(KAS.retrigger(KAS.first_hand), KAS.cond(KAS.first_hand)),
+    }
+end
+
+-- 166. Bufón Azur
+do
+    SMODS.Joker {
+        key = "bufon_azur",
+        loc_txt = {
+            name = "Bufón Azur",
+            text = {
+                "{C:chips}+#1#{} fichas",
+            },
+        },
+        config = { extra = { chips = 50 } },
+        rarity = 1,
+        cost = 3,
+        atlas = "cartas3",
+        pos = { x = 0, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.flat(),
+    }
+end
+
+-- 167. Bufoncillo
+do
+    SMODS.Joker {
+        key = "bufoncillo",
+        loc_txt = {
+            name = "Bufoncillo",
+            text = {
+                "{C:mult}+#1#{} multi si juegas",
+                "{C:attention}#2#{} cartas o menos",
+            },
+        },
+        config = { extra = { mult = 12, cards = 2 } },
+        rarity = 1,
+        cost = 3,
+        atlas = "cartas3",
+        pos = { x = 1, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult, e.cards } }
+        end,
+        calculate = KAS.cond(function(card, context, e) return #context.full_hand <= e.cards end),
+    }
+end
+
+-- 168. Gran Bufón
+do
+    SMODS.Joker {
+        key = "gran_bufon",
+        loc_txt = {
+            name = "Gran Bufón",
+            text = {
+                "{C:mult}+#1#{} multi por cada",
+                "carta puntuada",
+            },
+        },
+        config = { extra = { mult = 3 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 2, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) return { mult = e.mult * #context.scoring_hand } end),
+    }
+end
+
+-- 169. Bufón Morado
+do
+    SMODS.Joker {
+        key = "bufon_morado",
+        loc_txt = {
+            name = "Bufón Morado",
+            text = {
+                "Gana {X:mult,C:white} X#1# {} multi cada vez",
+                "que juegas una {C:attention}Pareja{}",
+                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 0.1, xmult = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 3, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.xmult } }
+        end,
+        calculate = KAS.scale{ field = 'xmult', on = KAS.T.hand_type('Pair') },
+    }
+end
+
+-- 170. Calavera de Espadas
+do
+    SMODS.Joker {
+        key = "calavera_espadas",
+        loc_txt = {
+            name = "Calavera de Espadas",
+            text = {
+                "Cada carta de {C:spades}Picas{} puntuada",
+                "tiene {C:green}#1# entre #2#{} probabilidades",
+                "de dar {X:mult,C:white} X#3# {} multi",
+            },
+        },
+        config = { extra = { odds = 2, xmult = 1.5 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 4, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { KAS.prob(), e.odds, e.xmult } }
+        end,
+        calculate = KAS.per_card(KAS.suit("Spades"), "kas_calavera_espadas"),
+    }
+end
+
+-- 171. Bufón del Bosque
+do
+    SMODS.Joker {
+        key = "bufon_bosque",
+        loc_txt = {
+            name = "Bufón del Bosque",
+            text = {
+                "Cada carta de {C:clubs}Tréboles{} que tengas",
+                "en la mano da {C:mult}+#1#{} multi",
+            },
+        },
+        config = { extra = { mult = 3 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 5, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.held(KAS.suit("Clubs")),
+    }
+end
+
+-- 172. Gato Esmeralda
+do
+    SMODS.Joker {
+        key = "gato_esmeralda",
+        loc_txt = {
+            name = "Gato Esmeralda",
+            text = {
+                "Reactiva cada carta",
+                "de {C:clubs}Tréboles{} puntuada",
+            },
+        },
+        config = { extra = { reps = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 6, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.retrigger(KAS.suit("Clubs")),
+    }
+end
+
+-- 173. Simio Fantasma
+do
+    SMODS.Joker {
+        key = "simio_fantasma",
+        loc_txt = {
+            name = "Simio Fantasma",
+            text = {
+                "{C:chips}+#1#{} fichas por cada",
+                "{C:attention}comodín{} que tengas",
+            },
+        },
+        config = { extra = { chips = 20 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 7, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) return { chips = e.chips * #G.jokers.cards } end),
+    }
+end
+
+-- 174. Zorro Rojo
+do
+    SMODS.Joker {
+        key = "zorro_rojo",
+        loc_txt = {
+            name = "Zorro Rojo",
+            text = {
+                "Ganas {C:money}$#1#{} por cada carta",
+                "de {C:hearts}Corazones{} descartada",
+            },
+        },
+        config = { extra = { dollars = 1 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 8, y = 0 },
+        blueprint_compat = false,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calculate = KAS.discard_money(KAS.suit("Hearts")),
+    }
+end
+
+-- 175. Gato Azul
+do
+    SMODS.Joker {
+        key = "gato_azul",
+        loc_txt = {
+            name = "Gato Azul",
+            text = {
+                "Reactiva cada carta",
+                "de {C:spades}Picas{} puntuada",
+            },
+        },
+        config = { extra = { reps = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 9, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.retrigger(KAS.suit("Spades")),
+    }
+end
+
+-- 176. Simio Bufón
+do
+    SMODS.Joker {
+        key = "simio_bufon",
+        loc_txt = {
+            name = "Simio Bufón",
+            text = {
+                "{C:mult}+#1#{} multi por cada mano",
+                "ya jugada esta ronda",
+            },
+        },
+        config = { extra = { mult = 4 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 10, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = G.GAME.current_round.hands_played if n > 0 then return { mult = e.mult * n } end end),
+    }
+end
+
+-- 177. León Dorado
+do
+    SMODS.Joker {
+        key = "leon_dorado",
+        loc_txt = {
+            name = "León Dorado",
+            text = {
+                "Cada carta de {C:attention}figura{} puntuada",
+                "da {C:mult}+#1#{} multi y {C:money}$#2#{}",
+            },
+        },
+        config = { extra = { mult = 3, dollars = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 11, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult, e.dollars } }
+        end,
+        calculate = KAS.per_card(KAS.face),
+    }
+end
+
+-- 178. Demonio Blanco
+do
+    SMODS.Joker {
+        key = "demonio_blanco",
+        loc_txt = {
+            name = "Demonio Blanco",
+            text = {
+                "{X:mult,C:white} X#1# {} multi;",
+                "{C:green}#2# entre #3#{} probabilidades de",
+                "destruirse al final de la ronda",
+            },
+        },
+        config = { extra = { xmult = 3, break_odds = 8 } },
+        rarity = 3,
+        cost = 8,
+        atlas = "cartas3",
+        pos = { x = 12, y = 0 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult, KAS.prob(), e.break_odds } }
+        end,
+        calculate = KAS.combine(KAS.flat(), KAS.fragile("kas_demonio_blanco")),
+        eternal_compat = false,
+    }
+end
+
+-- 179. Bufón Real
+do
+    SMODS.Joker {
+        key = "bufon_real",
+        loc_txt = {
+            name = "Bufón Real",
+            text = {
+                "Reactiva cada {C:attention}Rey{}",
+                "puntuado",
+            },
+        },
+        config = { extra = { reps = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 0, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.retrigger(KAS.rank(13)),
+    }
+end
+
+-- 180. Científico Loco
+do
+    SMODS.Joker {
+        key = "cientifico_loco",
+        loc_txt = {
+            name = "Científico Loco",
+            text = {
+                "Gana {C:chips}+#1#{} fichas cada vez",
+                "que usas una carta de {C:tarot}Tarot{}",
+                "{C:inactive}(Actual: {C:chips}+#2#{C:inactive} fichas)",
+            },
+        },
+        config = { extra = { gain = 10, chips = 0 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 1, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.chips } }
+        end,
+        calculate = KAS.scale{ field = 'chips', on = KAS.T.consumable('Tarot') },
+    }
+end
+
+-- 181. Duende del Sombrero
+do
+    SMODS.Joker {
+        key = "duende_sombrero",
+        loc_txt = {
+            name = "Duende del Sombrero",
+            text = {
+                "Ganas {C:money}$#1#{} si la mano",
+                "jugada contiene una {C:attention}Escalera{}",
+            },
+        },
+        config = { extra = { dollars = 3 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 2, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calculate = KAS.hand("Straight"),
+    }
+end
+
+-- 182. Conejo Rosa
+do
+    SMODS.Joker {
+        key = "conejo_rosa",
+        loc_txt = {
+            name = "Conejo Rosa",
+            text = {
+                "Cada {C:attention}2{} puntuado",
+                "da {C:mult}+#1#{} multi",
+            },
+        },
+        config = { extra = { mult = 6 } },
+        rarity = 1,
+        cost = 3,
+        atlas = "cartas3",
+        pos = { x = 3, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.per_card(KAS.rank(2)),
+    }
+end
+
+-- 183. Bufón de la Llama
+do
+    SMODS.Joker {
+        key = "bufon_llama",
+        loc_txt = {
+            name = "Bufón de la Llama",
+            text = {
+                "Gana {C:mult}+#1#{} multi cada vez",
+                "que juegas un {C:attention}Color{}",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 5, mult = 0 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 4, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.mult } }
+        end,
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.hand_type('Flush') },
+    }
+end
+
+-- 184. Husky
+do
+    SMODS.Joker {
+        key = "husky",
+        loc_txt = {
+            name = "Husky",
+            text = {
+                "Cada {C:attention}7{} u {C:attention}8{} puntuado",
+                "da {C:chips}+#1#{} fichas",
+            },
+        },
+        config = { extra = { chips = 20 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 5, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.per_card(KAS.rank(7, 8)),
+    }
+end
+
+-- 185. Bufón Cortesano
+do
+    SMODS.Joker {
+        key = "bufon_cortesano",
+        loc_txt = {
+            name = "Bufón Cortesano",
+            text = {
+                "Cada {C:attention}Reina{} que tengas",
+                "en la mano da {C:mult}+#1#{} multi",
+            },
+        },
+        config = { extra = { mult = 6 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 6, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.held(KAS.rank(12)),
+    }
+end
+
+-- 186. Gata Bufona
+do
+    SMODS.Joker {
+        key = "gata_bufona",
+        loc_txt = {
+            name = "Gata Bufona",
+            text = {
+                "{X:mult,C:white} +X#1# {} multi por cada carta",
+                "de {C:hearts}Corazones{} puntuada",
+            },
+        },
+        config = { extra = { step = 0.2 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 7, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.step } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = KAS.contar(context.scoring_hand, KAS.suit('Hearts')) if n > 0 then return { xmult = 1 + e.step * n } end end),
+    }
+end
+
+-- 187. Gato de la Suerte
+do
+    SMODS.Joker {
+        key = "gato_suerte",
+        loc_txt = {
+            name = "Gato de la Suerte",
+            text = {
+                "{C:green}#1# entre #2#{} probabilidades",
+                "de dar {X:mult,C:white} X#3# {} multi",
+            },
+        },
+        config = { extra = { odds = 7, xmult = 7 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 8, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { KAS.prob(), e.odds, e.xmult } }
+        end,
+        calculate = KAS.chance("kas_gato_suerte"),
+    }
+end
+
+-- 188. Planeta Azul
+do
+    SMODS.Joker {
+        key = "planeta_azul",
+        loc_txt = {
+            name = "Planeta Azul",
+            text = {
+                "{C:chips}+#1#{} fichas por cada {C:attention}nivel{}",
+                "de la mano jugada",
+            },
+        },
+        config = { extra = { chips = 10 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 9, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local h = G.GAME.hands[context.scoring_name] if h then return { chips = e.chips * h.level } end end),
+    }
+end
+
+-- 189. Fantasma Mago
+do
+    SMODS.Joker {
+        key = "fantasma_mago",
+        loc_txt = {
+            name = "Fantasma Mago",
+            text = {
+                "Gana {C:mult}+#1#{} multi cada vez",
+                "que usas una carta {C:spectral}Espectral{}",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 5, mult = 0 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 10, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.mult } }
+        end,
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.consumable('Spectral') },
+    }
+end
+
+-- 190. Faro
+do
+    SMODS.Joker {
+        key = "faro",
+        loc_txt = {
+            name = "Faro",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si te quedan",
+                "{C:attention}#2#{} o más cartas en la mano",
+            },
+        },
+        config = { extra = { xmult = 1.5, cards = 4 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 11, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult, e.cards } }
+        end,
+        calculate = KAS.cond(function(card, context, e) return #G.hand.cards >= e.cards end),
+    }
+end
+
+-- 191. Gato Brujo
+do
+    SMODS.Joker {
+        key = "gato_brujo",
+        loc_txt = {
+            name = "Gato Brujo",
+            text = {
+                "Al seleccionar la {C:attention}ciega{},",
+                "ganas {C:red}+#1#{} descarte",
+            },
+        },
+        config = { extra = { n = 1 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 12, y = 1 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.n } }
+        end,
+        calculate = function(self, card, context) if context.setting_blind then ease_discard(card.ability.extra.n) return { message = '+' .. card.ability.extra.n, colour = G.C.RED } end end,
+    }
+end
+
+-- 192. Perro Calavera
+do
+    SMODS.Joker {
+        key = "perro_calavera",
+        loc_txt = {
+            name = "Perro Calavera",
+            text = {
+                "Gana {C:chips}+#1#{} fichas por cada",
+                "carta {C:attention}descartada{}",
+                "{C:inactive}(Actual: {C:chips}+#2#{C:inactive} fichas)",
+            },
+        },
+        config = { extra = { gain = 3, chips = 0 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 0, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.chips } }
+        end,
+        calculate = KAS.scale{ field = 'chips', on = KAS.T.discard },
+    }
+end
+
+-- 193. Brujo Sombrío
+do
+    SMODS.Joker {
+        key = "brujo_sombrio",
+        loc_txt = {
+            name = "Brujo Sombrío",
+            text = {
+                "{X:mult,C:white} X#1# {} multi si tienes al menos",
+                "una carta de {C:tarot}Tarot{}",
+            },
+        },
+        config = { extra = { xmult = 2 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 1, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.cond(function() for _, c in ipairs(G.consumeables.cards) do if c.ability.set == 'Tarot' then return true end end return false end),
+    }
+end
+
+-- 194. Conejo Blanco
+do
+    local al_entrar, al_salir = KAS.passive({ discards = 2, hands = -1 })
+    SMODS.Joker {
+        key = "conejo_blanco",
+        loc_txt = {
+            name = "Conejo Blanco",
+            text = {
+                "{C:red}+#1#{} descartes por ronda,",
+                "{C:blue}-#2#{} mano por ronda",
+            },
+        },
+        config = { extra = { n = 2, m = 1 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 2, y = 2 },
+        blueprint_compat = false,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.n, e.m } }
+        end,
+        add_to_deck = al_entrar,
+        remove_from_deck = al_salir,
+    }
+end
+
+-- 195. Luna Violeta
+do
+    SMODS.Joker {
+        key = "luna_violeta",
+        loc_txt = {
+            name = "Luna Violeta",
+            text = {
+                "Si la mano contiene una {C:attention}Doble pareja{},",
+                "crea una carta de {C:tarot}Tarot{}",
+                "{C:inactive}(Debe haber espacio)",
+            },
+        },
+        config = { extra = {  } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 3, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = {  } }
+        end,
+        calculate = KAS.create(KAS.T.hand_type("Two Pair"), "Tarot", nil),
+    }
+end
+
+-- 196. Oso Carmesí
+do
+    SMODS.Joker {
+        key = "oso_carmesi",
+        loc_txt = {
+            name = "Oso Carmesí",
+            text = {
+                "{C:mult}+#1#{} multi si la mano",
+                "jugada contiene {C:attention}Full{}",
+            },
+        },
+        config = { extra = { mult = 20 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 4, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.hand("Full House"),
+    }
+end
+
+-- 197. Boston Terrier
+do
+    SMODS.Joker {
+        key = "boston_terrier",
+        loc_txt = {
+            name = "Boston Terrier",
+            text = {
+                "Cada carta {C:attention}par{} que tengas",
+                "en la mano da {C:mult}+#1#{} multi",
+            },
+        },
+        config = { extra = { mult = 2 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 5, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.held(KAS.even),
+    }
+end
+
+-- 198. Lingote de Oro
+do
+    SMODS.Joker {
+        key = "lingote_oro",
+        loc_txt = {
+            name = "Lingote de Oro",
+            text = {
+                "Ganas {C:money}$#1#{} al final de la ronda",
+                "si no has usado {C:attention}descartes{}",
+            },
+        },
+        config = { extra = { dollars = 5 } },
+        rarity = 1,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 6, y = 2 },
+        blueprint_compat = false,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.dollars } }
+        end,
+        calc_dollar_bonus = function(self, card) if G.GAME.current_round.discards_used == 0 then return card.ability.extra.dollars end end,
+    }
+end
+
+-- 199. Cristal Rosa
+do
+    SMODS.Joker {
+        key = "cristal_rosa",
+        loc_txt = {
+            name = "Cristal Rosa",
+            text = {
+                "Cada {C:attention}Reina{} puntuado",
+                "da {X:mult,C:white} X#1# {} multi",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 7, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.per_card(KAS.rank(12)),
+    }
+end
+
+-- 200. Cubo de Hielo
+do
+    SMODS.Joker {
+        key = "cubo_hielo",
+        loc_txt = {
+            name = "Cubo de Hielo",
+            text = {
+                "{C:chips}+#1#{} fichas,",
+                "pierde {C:chips}#2#{} fichas por mano jugada",
+            },
+        },
+        config = { extra = { chips = 100, loss = 5, gain = -5 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 8, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips, e.loss } }
+        end,
+        calculate = KAS.scale{ field = 'chips', on = KAS.T.hand_played, destroy_at = 0 },
+    }
+end
+
+-- 201. Zorro Paciente
+do
+    SMODS.Joker {
+        key = "zorro_paciente",
+        loc_txt = {
+            name = "Zorro Paciente",
+            text = {
+                "Gana {C:mult}+#1#{} multi al final",
+                "de cada ronda",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 2, mult = 0 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 9, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.mult } }
+        end,
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.round_end },
+    }
+end
+
+-- 202. Rey Demonio
+do
+    SMODS.Joker {
+        key = "rey_demonio",
+        loc_txt = {
+            name = "Rey Demonio",
+            text = {
+                "{X:mult,C:white} X#1# {} multi por cada {C:attention}Rey{}",
+                "en la mano puntuada",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 3,
+        cost = 8,
+        atlas = "cartas3",
+        pos = { x = 10, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = KAS.contar(context.scoring_hand, KAS.rank(13)) if n > 0 then return { xmult = e.xmult ^ n } end end),
+    }
+end
+
+-- 203. El Encapuchado
+do
+    SMODS.Joker {
+        key = "el_encapuchado",
+        loc_txt = {
+            name = "El Encapuchado",
+            text = {
+                "{C:chips}+#1#{} fichas si la mano",
+                "jugada contiene {C:attention}Color{}",
+            },
+        },
+        config = { extra = { chips = 80 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 11, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.hand("Flush"),
+    }
+end
+
+-- 204. Lámpara Dorada
+do
+    SMODS.Joker {
+        key = "lampara_dorada",
+        loc_txt = {
+            name = "Lámpara Dorada",
+            text = {
+                "{X:mult,C:white} X#1# {} multi",
+                "Crea una carta {C:spectral}Espectral{}",
+                "al seleccionar la {C:attention}ciega{}",
+            },
+        },
+        config = { extra = { xmult = 2 } },
+        rarity = 4,
+        cost = 20,
+        atlas = "cartas3",
+        pos = { x = 12, y = 2 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.combine(KAS.flat(), KAS.create(KAS.T.blind, "Spectral")),
+    }
+end
+
+-- 205. Lobo Violeta
+do
+    SMODS.Joker {
+        key = "lobo_violeta",
+        loc_txt = {
+            name = "Lobo Violeta",
+            text = {
+                "{C:mult}+#1#{} multi si tienes",
+                "{C:attention}#2#{} comodines o más",
+            },
+        },
+        config = { extra = { mult = 10, min = 3 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 0, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult, e.min } }
+        end,
+        calculate = KAS.cond(function(card, context, e) return #G.jokers.cards >= e.min end),
+    }
+end
+
+-- 206. Bufón del Sol
+do
+    SMODS.Joker {
+        key = "bufon_sol",
+        loc_txt = {
+            name = "Bufón del Sol",
+            text = {
+                "Cada carta {C:hearts}roja{} puntuada",
+                "da {C:mult}+#1#{} multi y {C:chips}+#2#{} fichas",
+            },
+        },
+        config = { extra = { mult = 2, chips = 10 } },
+        rarity = 1,
+        cost = 5,
+        atlas = "cartas3",
+        pos = { x = 1, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult, e.chips } }
+        end,
+        calculate = KAS.per_card(KAS.suit("Hearts", "Diamonds")),
+    }
+end
+
+-- 207. Calavera Dorada
+do
+    SMODS.Joker {
+        key = "calavera_dorada",
+        loc_txt = {
+            name = "Calavera Dorada",
+            text = {
+                "Cada {C:attention}As{} puntuado",
+                "da {X:mult,C:white} X#1# {} multi",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 2, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.per_card(KAS.rank(14)),
+    }
+end
+
+-- 208. Bufón Nocturno
+do
+    SMODS.Joker {
+        key = "bufon_nocturno",
+        loc_txt = {
+            name = "Bufón Nocturno",
+            text = {
+                "{C:mult}+#1#{} multi en la",
+                "{C:attention}última mano{} de la ronda",
+            },
+        },
+        config = { extra = { mult = 20 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 3, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.cond(KAS.last_hand),
+    }
+end
+
+-- 209. Duende Bufón
+do
+    SMODS.Joker {
+        key = "duende_bufon",
+        loc_txt = {
+            name = "Duende Bufón",
+            text = {
+                "Cada {C:attention}J{} o {C:attention}Reina{} puntuado",
+                "da {C:chips}+#1#{} fichas",
+            },
+        },
+        config = { extra = { chips = 20 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 4, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.per_card(KAS.rank(11, 12)),
+    }
+end
+
+-- 210. Llama Azul
+do
+    SMODS.Joker {
+        key = "llama_azul",
+        loc_txt = {
+            name = "Llama Azul",
+            text = {
+                "Gana {X:mult,C:white} X#1# {} multi por cada carta",
+                "de {C:spades}Picas{} puntuada",
+                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 0.05, xmult = 1 } },
+        rarity = 2,
+        cost = 7,
+        atlas = "cartas3",
+        pos = { x = 5, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.xmult } }
+        end,
+        calculate = KAS.scale{ field = 'xmult', on = function(context) return context.before and KAS.contar(context.scoring_hand, KAS.suit('Spades')) end },
+    }
+end
+
+-- 211. Dado Rojo
+do
+    SMODS.Joker {
+        key = "dado_rojo",
+        loc_txt = {
+            name = "Dado Rojo",
+            text = {
+                "{C:green}#1# entre #2#{} probabilidades",
+                "de dar {X:mult,C:white} X#3# {} multi",
+            },
+        },
+        config = { extra = { odds = 6, xmult = 6 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 6, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { KAS.prob(), e.odds, e.xmult } }
+        end,
+        calculate = KAS.chance("kas_dado_rojo"),
+    }
+end
+
+-- 212. Conde Vampiro
+do
+    SMODS.Joker {
+        key = "conde_vampiro",
+        loc_txt = {
+            name = "Conde Vampiro",
+            text = {
+                "Gana {X:mult,C:white} X#1# {} multi por cada carta",
+                "de {C:hearts}Corazones{} puntuada",
+                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
+            },
+        },
+        config = { extra = { gain = 0.1, xmult = 1 } },
+        rarity = 3,
+        cost = 8,
+        atlas = "cartas3",
+        pos = { x = 7, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.gain, e.xmult } }
+        end,
+        calculate = KAS.scale{ field = 'xmult', on = function(context) return context.before and KAS.contar(context.scoring_hand, KAS.suit('Hearts')) end },
+    }
+end
+
+-- 213. Orbe Demoníaco
+do
+    SMODS.Joker {
+        key = "orbe_demoniaco",
+        loc_txt = {
+            name = "Orbe Demoníaco",
+            text = {
+                "{X:mult,C:white} X#1# {} multi, pierde {X:mult,C:white} X#2# {}",
+                "por mano jugada",
+            },
+        },
+        config = { extra = { xmult = 2, loss = 0.1, gain = -0.1 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 8, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult, e.loss } }
+        end,
+        calculate = KAS.scale{ field = 'xmult', on = KAS.T.hand_played, destroy_at = 1 },
+    }
+end
+
+-- 214. Meteorito
+do
+    SMODS.Joker {
+        key = "meteorito",
+        loc_txt = {
+            name = "Meteorito",
+            text = {
+                "{C:chips}+#1#{} fichas por cada carta de",
+                "{C:planet}Planeta{} usada en la partida",
+            },
+        },
+        config = { extra = { chips = 10 } },
+        rarity = 2,
+        cost = 6,
+        atlas = "cartas3",
+        pos = { x = 9, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.chips } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = (G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.planet) or 0 if n > 0 then return { chips = e.chips * n } end end),
+    }
+end
+
+-- 215. Calavera Bruja
+do
+    SMODS.Joker {
+        key = "calavera_bruja",
+        loc_txt = {
+            name = "Calavera Bruja",
+            text = {
+                "{C:mult}+#1#{} multi por cada carta de",
+                "{C:tarot}Tarot{} usada en la partida",
+            },
+        },
+        config = { extra = { mult = 2 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 10, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.mult } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) local n = (G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.tarot) or 0 if n > 0 then return { mult = e.mult * n } end end),
+    }
+end
+
+-- 216. Dado Azul
+do
+    SMODS.Joker {
+        key = "dado_azul",
+        loc_txt = {
+            name = "Dado Azul",
+            text = {
+                "Da entre {C:chips}+#1#{} y {C:chips}+#2#{}",
+                "fichas al azar",
+            },
+        },
+        config = { extra = { min = 10, max = 100 } },
+        rarity = 1,
+        cost = 4,
+        atlas = "cartas3",
+        pos = { x = 11, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.min, e.max } }
+        end,
+        calculate = KAS.dyn(function(card, context, e) return { chips = pseudorandom('kas_dado_azul', e.min, e.max) } end),
+    }
+end
+
+-- 217. Máscara Dorada
+do
+    SMODS.Joker {
+        key = "mascara_dorada",
+        loc_txt = {
+            name = "Máscara Dorada",
+            text = {
+                "Cada carta de {C:attention}figura{}",
+                "puntuada da {X:mult,C:white} X#1# {} multi",
+            },
+        },
+        config = { extra = { xmult = 1.5 } },
+        rarity = 4,
+        cost = 20,
+        atlas = "cartas3",
+        pos = { x = 12, y = 3 },
+        blueprint_compat = true,
+        loc_vars = function(self, info_queue, card)
+            local e = card.ability.extra
+            return { vars = { e.xmult } }
+        end,
+        calculate = KAS.per_card(KAS.face),
     }
 end
