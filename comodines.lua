@@ -3742,12 +3742,13 @@ do
         loc_txt = {
             name = "Bufón Colorido",
             text = {
+                "Cada carta puntuada da",
                 "{C:mult}+#1#{} multi y {C:chips}+#2#{} fichas",
             },
         },
-        config = { extra = { mult = 4, chips = 30 } },
+        config = { extra = { mult = 1, chips = 5 } },
         rarity = 1,
-        cost = 3,
+        cost = 4,
         atlas = "cartas2",
         pos = { x = 8, y = 3 },
         blueprint_compat = true,
@@ -3755,7 +3756,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult, e.chips } }
         end,
-        calculate = KAS.flat(),
+        calculate = KAS.per_card(KAS.any),
     }
 end
 

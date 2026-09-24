@@ -161,8 +161,9 @@ COMODINES = [
       [CHIPS % 1 + " por cada carta de", "{C:attention}figura{} en tu baraja completa"], {"chips": 3}, ["chips"],
       "KAS.dyn(function(card, context, e) local n = KAS.contar(G.playing_cards, KAS.face) "
       "if n > 0 then return { chips = e.chips * n } end end)"),
-    J("bufon_colorido", "Bufón Colorido", 1, 3,
-      [MULT % 1 + " y " + CHIPS % 2], {"mult": 4, "chips": 30}, ["mult", "chips"], "KAS.flat()"),
+    J("bufon_colorido", "Bufón Colorido", 1, 4,
+      ["Cada carta puntuada da", MULT % 1 + " y " + CHIPS % 2], {"mult": 1, "chips": 5}, ["mult", "chips"],
+      "KAS.per_card(KAS.any)"),
     J("rey_leon", "Rey León", 2, 7,
       [XMULT % 1 + " si la mano", "puntuada contiene un {C:attention}Rey{}"], {"xmult": 2}, ["xmult"],
       "KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.rank(13)) > 0 end)"),

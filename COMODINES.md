@@ -165,7 +165,7 @@ en su hoja de sprites (`assets/fuente/`).
 | 145 | F4·C6 | **Gato de Saturno** | Común | $5 | +15 multi si tienes al menos una carta de Planeta | Sí |
 | 146 | F4·C7 | **Sol Ardiente** | Común | $5 | +20 multi en la primera mano de la ronda | Sí |
 | 147 | F4·C8 | **Ojo del Mosaico** | Común | $5 | +3 fichas por cada carta de figura en tu baraja completa | Sí |
-| 148 | F4·C9 | **Bufón Colorido** | Común | $3 | +4 multi y +30 fichas | Sí |
+| 148 | F4·C9 | **Bufón Colorido** | Común | $4 | Cada carta puntuada da +1 multi y +5 fichas | Sí |
 | 149 | F4·C10 | **Rey León** | Poco común | $7 | X2 multi si la mano puntuada contiene un Rey | Sí |
 | 150 | F4·C11 | **Calavera Maga** | Común | $5 | Ganas $2 cada vez que usas una carta de Tarot | Sí |
 | 151 | F4·C12 | **Esqueleto Mecánico** | Común | $4 | Cada 2 o 3 puntuado da +20 fichas y +2 multi | Sí |
