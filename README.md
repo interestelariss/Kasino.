@@ -11,14 +11,30 @@ Añade **225 comodines** con arte pixel:
 
 | Comodín | Rareza | Efecto |
 |---|---|---|
-| Tragaperras | Poco común | 1 entre 4 probabilidades de dar X3 multi |
+| Tragaperras | Poco común | 1 entre 4 probabilidades de dar X2 multi |
 | Crupier | Común | Cada 7 jugado da +7 multi al puntuar |
 | Ruleta | Común | Corazones/Diamantes: +3 multi · Picas/Tréboles: +20 fichas |
-| Full de Ases | Poco común | Gana X0.25 multi cada vez que juegas un Full |
+| Full de Ases | Poco común | Gana X0.15 multi cada vez que juegas un Full |
 | La Banca | Poco común | Al final de la ronda, $1 por cada comodín que tengas |
-| Doble o Nada | Poco común | X2 multi; al final de la ronda, a cara o cruz gana o pierde X0.5 (se destruye en X1) |
+| Doble o Nada | Poco común | X1.5 multi; al final de la ronda, a cara o cruz gana o pierde X0.25 (se destruye en X1) |
 | Contador de Cartas | Común | +2 multi por carta descartada esta ronda (se reinicia) |
 | As en la Manga | Poco común | Reactiva cada As jugado |
+
+## Probabilidades en la tienda
+
+Con los pesos del juego (tienda sin cupones: comodín 20, Tarot 4, Planeta 4) y
+contando los comodines del juego base que comparten rareza:
+
+| Rareza | Peso de la rareza | Comodines Kasino | Algún Kasino por hueco | Uno concreto por hueco |
+|---|---|---|---|---|
+| Común | 69.3 % | 103 de 164 | 30.8 % | 0.31 % |
+| Poco común | 24.8 % | 101 de 165 | 10.6 % | 0.11 % |
+| Raro | 5.0 % | 20 de 40 | 1.8 % | 0.09 % |
+| Legendario | 1.0 % | 9 de 9 | 0.7 % | 0.08 % |
+
+En el juego base los legendarios solo salen con la carta espectral El Alma. Los de
+Kasino usan una rareza propia (`kas_legendario`, peso 0.01) para salir también en
+la tienda y en los paquetes de bufón; a cambio, El Alma no los genera.
 
 ## Instalación
 

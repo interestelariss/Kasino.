@@ -9,6 +9,20 @@ SMODS.Atlas {
 
 assert(SMODS.load_file("kasino_lib.lua"))()
 
+-- En el juego base los legendarios solo salen con la carta espectral El Alma.
+-- Los legendarios de Kasino usan esta rareza propia para poder salir también
+-- en la tienda y en los paquetes de bufón, con un peso pequeño.
+SMODS.Rarity {
+    key = "legendario",
+    loc_txt = { name = "Legendario" },
+    badge_colour = HEX("B26CBB"),
+    default_weight = 0.01,
+    pools = { ["Joker"] = true },
+    get_weight = function(self, weight, object_type)
+        return weight
+    end,
+}
+
 local function prob()
     return (G.GAME and G.GAME.probabilities.normal) or 1
 end
@@ -47,7 +61,7 @@ SMODS.Joker {
             "de dar {X:mult,C:white} X#3# {} multi",
         },
     },
-    config = { extra = { odds = 4, xmult = 3 } },
+    config = { extra = { odds = 4, xmult = 2 } },
     rarity = 2,
     cost = 6,
     atlas = "jokers",
@@ -133,7 +147,7 @@ SMODS.Joker {
             "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
         },
     },
-    config = { extra = { gain = 0.25, xmult = 1 } },
+    config = { extra = { gain = 0.15, xmult = 1 } },
     rarity = 2,
     cost = 7,
     atlas = "jokers",
@@ -190,7 +204,7 @@ SMODS.Joker {
             "{C:inactive}(Se destruye si baja a X1)",
         },
     },
-    config = { extra = { xmult = 2, step = 0.5 } },
+    config = { extra = { xmult = 1.5, step = 0.25 } },
     rarity = 2,
     cost = 6,
     atlas = "jokers",
