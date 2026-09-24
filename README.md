@@ -15,8 +15,8 @@ Añade **225 comodines** con arte pixel:
 | Crupier | Común | Cada 7 jugado da +7 multi al puntuar |
 | Ruleta | Común | Corazones/Diamantes: +3 multi · Picas/Tréboles: +20 fichas |
 | Full de Ases | Poco común | Gana X0.25 multi cada vez que juegas un Full |
-| La Banca | Poco común | $2 al final de la ronda; +$1 por cada ciega jefe derrotada |
-| Doble o Nada | Poco común | X2.5 multi, 1 entre 4 de destruirse al final de la ronda |
+| La Banca | Poco común | Al final de la ronda, $1 por cada comodín que tengas |
+| Doble o Nada | Poco común | X2 multi; al final de la ronda, a cara o cruz gana o pierde X0.5 (se destruye en X1) |
 | Contador de Cartas | Común | +2 multi por carta descartada esta ronda (se reinicia) |
 | As en la Manga | Poco común | Reactiva cada As jugado |
 

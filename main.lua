@@ -154,50 +154,43 @@ SMODS.Joker {
     end,
 }
 
--- 5. La Banca: da dinero al final de la ronda y sube con cada jefe derrotado
+-- 5. La Banca: da dinero al final de la ronda por cada comodin que tengas
 SMODS.Joker {
     key = "la_banca",
     loc_txt = {
         name = "La Banca",
         text = {
-            "Ganas {C:money}$#1#{} al final de la ronda",
-            "Aumenta en {C:money}$#2#{} al derrotar",
-            "una {C:attention}ciega jefe{}",
+            "Al final de la ronda ganas {C:money}$#1#{}",
+            "por cada {C:attention}comodín{} que tengas",
         },
     },
-    config = { extra = { dollars = 2, gain = 1 } },
+    config = { extra = { dollars = 1 } },
     rarity = 2,
     cost = 6,
     atlas = "jokers",
     pos = { x = 4, y = 0 },
     blueprint_compat = false,
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra.dollars, card.ability.extra.gain } }
-    end,
-    calculate = function(self, card, context)
-        if context.end_of_round and context.main_eval and not context.blueprint
-            and G.GAME.blind.boss then
-            card.ability.extra.dollars = card.ability.extra.dollars + card.ability.extra.gain
-            return { message = localize('k_upgrade_ex'), colour = G.C.MONEY }
-        end
+        return { vars = { card.ability.extra.dollars } }
     end,
     calc_dollar_bonus = function(self, card)
-        return card.ability.extra.dollars
+        return card.ability.extra.dollars * #G.jokers.cards
     end,
 }
 
--- 6. Doble o Nada: X2.5 multi, pero puede romperse al final de la ronda
+-- 6. Doble o Nada: al final de cada ronda se juega su X multi a cara o cruz
 SMODS.Joker {
     key = "doble_o_nada",
     loc_txt = {
         name = "Doble o Nada",
         text = {
             "{X:mult,C:white} X#1# {} multi",
-            "{C:green}#2# entre #3#{} probabilidades de",
-            "destruirse al final de la ronda",
+            "Al final de la ronda, a cara o cruz:",
+            "gana o pierde {X:mult,C:white} X#2# {} multi",
+            "{C:inactive}(Se destruye si baja a X1)",
         },
     },
-    config = { extra = { xmult = 2.5, odds = 4 } },
+    config = { extra = { xmult = 2, step = 0.5 } },
     rarity = 2,
     cost = 6,
     atlas = "jokers",
@@ -205,18 +198,24 @@ SMODS.Joker {
     blueprint_compat = true,
     eternal_compat = false,
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra.xmult, prob(), card.ability.extra.odds } }
+        return { vars = { card.ability.extra.xmult, card.ability.extra.step } }
     end,
     calculate = function(self, card, context)
+        local e = card.ability.extra
         if context.joker_main then
-            return { xmult = card.ability.extra.xmult }
+            return { xmult = e.xmult }
         end
         if context.end_of_round and context.main_eval and not context.blueprint then
-            if pseudorandom('kas_doble_o_nada') < prob() / card.ability.extra.odds then
+            if pseudorandom('kas_doble_o_nada') < 0.5 then
+                e.xmult = e.xmult + e.step
+                return { message = "¡Doble!", colour = G.C.GREEN }
+            end
+            e.xmult = e.xmult - e.step
+            if e.xmult <= 1 then
                 destruir(card)
                 return { message = "¡Nada!", colour = G.C.RED }
             end
-            return { message = localize('k_safe_ex') }
+            return { message = localize { type = 'variable', key = 'a_xmult_minus', vars = { e.step } }, colour = G.C.RED }
         end
     end,
 }

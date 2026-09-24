@@ -12,12 +12,13 @@ do
         loc_txt = {
             name = "Bufón Clásico",
             text = {
-                "{C:mult}+#1#{} multi",
+                "{C:mult}+#1#{} multi por cada comodín",
+                "{C:blue}Común{} que tengas",
             },
         },
-        config = { extra = { mult = 5 } },
+        config = { extra = { mult = 4 } },
         rarity = 1,
-        cost = 3,
+        cost = 4,
         atlas = "cartas",
         pos = { x = 0, y = 0 },
         blueprint_compat = true,
@@ -25,7 +26,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult } }
         end,
-        calculate = KAS.flat(),
+        calculate = KAS.dyn(function(card, context, e) local n = 0 for _, j in ipairs(G.jokers.cards) do if j.config.center.rarity == 1 then n = n + 1 end end if n > 0 then return { mult = e.mult * n } end end),
     }
 end
 
@@ -36,11 +37,11 @@ do
         loc_txt = {
             name = "Bufón Sombrío",
             text = {
-                "Cada carta de {C:spades}Picas{} puntuada",
-                "da {C:mult}+#1#{} multi",
+                "{C:mult}+#1#{} multi si todas las cartas",
+                "puntuadas son de {C:spades}Picas{}",
             },
         },
-        config = { extra = { mult = 3 } },
+        config = { extra = { mult = 25 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -50,7 +51,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult } }
         end,
-        calculate = KAS.per_card(KAS.suit("Spades")),
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.suit('Spades')) == #context.scoring_hand end),
     }
 end
 
@@ -86,21 +87,22 @@ do
         loc_txt = {
             name = "Bufón Violeta",
             text = {
-                "{C:mult}+#1#{} multi si la mano",
-                "jugada contiene {C:attention}Doble pareja{}",
+                "Gana {C:mult}+#1#{} multi cada vez que",
+                "juegas una {C:attention}Doble pareja{}",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
             },
         },
-        config = { extra = { mult = 10 } },
+        config = { extra = { gain = 2, mult = 0 } },
         rarity = 1,
-        cost = 4,
+        cost = 5,
         atlas = "cartas",
         pos = { x = 3, y = 0 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.gain, e.mult } }
         end,
-        calculate = KAS.hand("Two Pair"),
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.hand_type('Two Pair') },
     }
 end
 
@@ -111,11 +113,11 @@ do
         loc_txt = {
             name = "Bufón Alegre",
             text = {
-                "{C:chips}+#1#{} fichas si la mano",
-                "jugada contiene {C:attention}Pareja{}",
+                "Si la mano jugada es {C:attention}Pareja{},",
+                "cada carta puntuada da {C:chips}+#1#{} fichas",
             },
         },
-        config = { extra = { chips = 50 } },
+        config = { extra = { chips = 25 } },
         rarity = 1,
         cost = 4,
         atlas = "cartas",
@@ -125,7 +127,7 @@ do
             local e = card.ability.extra
             return { vars = { e.chips } }
         end,
-        calculate = KAS.hand("Pair"),
+        calculate = KAS.per_card(KAS.jugada('Pair')),
     }
 end
 
@@ -136,11 +138,11 @@ do
         loc_txt = {
             name = "Bufón de Cascabeles",
             text = {
-                "Ganas {C:money}$#1#{} al final",
-                "de la ronda",
+                "Al final de la ronda ganas {C:money}$#1#{}",
+                "por cada {C:attention}mano{} jugada",
             },
         },
-        config = { extra = { dollars = 3 } },
+        config = { extra = { dollars = 1 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -150,7 +152,7 @@ do
             local e = card.ability.extra
             return { vars = { e.dollars } }
         end,
-        calc_dollar_bonus = function(self, card) return card.ability.extra.dollars end,
+        calc_dollar_bonus = function(self, card) local n = G.GAME.current_round.hands_played if n > 0 then return n * card.ability.extra.dollars end end,
     }
 end
 
@@ -211,8 +213,8 @@ do
         loc_txt = {
             name = "Bufón Siniestro",
             text = {
-                "{X:mult,C:white} X#1# {} multi en la",
-                "{C:attention}última mano{} de la ronda",
+                "{X:mult,C:white} X#1# {} multi si aún no has",
+                "conseguido la {C:attention}mitad{} de la ciega",
             },
         },
         config = { extra = { xmult = 2 } },
@@ -225,7 +227,7 @@ do
             local e = card.ability.extra
             return { vars = { e.xmult } }
         end,
-        calculate = KAS.cond(KAS.last_hand),
+        calculate = KAS.cond(function() return G.GAME.chips < G.GAME.blind.chips / 2 end),
     }
 end
 
@@ -261,21 +263,21 @@ do
         loc_txt = {
             name = "Arlequín de Retales",
             text = {
-                "{X:mult,C:white} X#1# {} multi si la mano puntuada",
-                "tiene cartas de los {C:attention}4 palos{}",
+                "{C:mult}+#1#{} multi por cada {C:attention}palo{}",
+                "distinto en la mano puntuada",
             },
         },
-        config = { extra = { xmult = 2.5 } },
+        config = { extra = { mult = 10 } },
         rarity = 2,
-        cost = 7,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 0, y = 1 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.xmult } }
+            return { vars = { e.mult } }
         end,
-        calculate = KAS.cond(function(card, context) return KAS.palos_distintos(context) >= 4 end),
+        calculate = KAS.dyn(function(card, context, e) local n = KAS.palos_distintos(context) if n > 0 then return { mult = e.mult * n } end end),
     }
 end
 
@@ -286,11 +288,12 @@ do
         loc_txt = {
             name = "Bufón Danzarín",
             text = {
-                "{C:chips}+#1#{} fichas por cada",
-                "{C:attention}descarte{} restante",
+                "Gana {C:chips}+#1#{} fichas por cada carta descartada;",
+                "se reinicia al final de la ronda",
+                "{C:inactive}(Actual: {C:chips}+#2#{C:inactive} fichas)",
             },
         },
-        config = { extra = { chips = 15 } },
+        config = { extra = { gain = 6, chips = 0 } },
         rarity = 1,
         cost = 4,
         atlas = "cartas",
@@ -298,9 +301,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.chips } }
+            return { vars = { e.gain, e.chips } }
         end,
-        calculate = KAS.dyn(function(card, context, e) local n = G.GAME.current_round.discards_left if n > 0 then return { chips = e.chips * n } end end),
+        calculate = KAS.scale{ field = 'chips', on = KAS.T.discard, reset = KAS.T.round_end },
     }
 end
 
@@ -337,21 +340,21 @@ do
         loc_txt = {
             name = "Bufón Bicolor",
             text = {
-                "Cada carta {C:attention}par{} puntuada",
-                "{C:inactive}(10, 8, 6, 4, 2){} da {C:mult}+#1#{} multi",
+                "{X:mult,C:white} X#1# {} multi si todas las cartas",
+                "puntuadas son {C:attention}pares{}",
             },
         },
-        config = { extra = { mult = 4 } },
-        rarity = 1,
-        cost = 4,
+        config = { extra = { xmult = 1.5 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 3, y = 1 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.xmult } }
         end,
-        calculate = KAS.per_card(KAS.even),
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.even) == #context.scoring_hand end),
     }
 end
 
@@ -362,12 +365,12 @@ do
         loc_txt = {
             name = "Bufón Verde",
             text = {
-                "{C:mult}+#1#{} multi por cada mano jugada",
-                "y {C:mult}-#1#{} multi por cada descarte",
+                "Gana {C:mult}+#1#{} multi por cada mano jugada;",
+                "pierde la {C:attention}mitad{} al final de la ronda",
                 "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
             },
         },
-        config = { extra = { gain = 1, mult = 0 } },
+        config = { extra = { gain = 2, mult = 0 } },
         rarity = 1,
         cost = 4,
         atlas = "cartas",
@@ -377,7 +380,7 @@ do
             local e = card.ability.extra
             return { vars = { e.gain, e.mult } }
         end,
-        calculate = function(self, card, context) local e = card.ability.extra if context.before and not context.blueprint then e.mult = e.mult + e.gain return { message = localize('k_upgrade_ex'), colour = G.C.MULT } end if context.pre_discard and not context.blueprint and e.mult > 0 then e.mult = math.max(0, e.mult - e.gain) return { message = localize { type = 'variable', key = 'a_mult_minus', vars = { e.gain } }, colour = G.C.RED } end if context.joker_main and e.mult > 0 then return { mult = e.mult } end end,
+        calculate = function(self, card, context) local e = card.ability.extra if context.before and not context.blueprint then e.mult = e.mult + e.gain return { message = localize('k_upgrade_ex'), colour = G.C.MULT } end if KAS.T.round_end(context) and not context.blueprint and e.mult > 0 then e.mult = math.floor(e.mult / 2) return { message = '-50%', colour = G.C.RED } end if context.joker_main and e.mult > 0 then return { mult = e.mult } end end,
     }
 end
 
@@ -388,21 +391,21 @@ do
         loc_txt = {
             name = "Bufón Estrella",
             text = {
-                "Cada {C:attention}As{} puntuado da",
-                "{C:chips}+#1#{} fichas y {C:mult}+#2#{} multi",
+                "{X:mult,C:white} X#1# {} multi si la mano puntuada",
+                "tiene {C:attention}#2#{} Ases o más",
             },
         },
-        config = { extra = { chips = 20, mult = 4 } },
-        rarity = 1,
-        cost = 4,
+        config = { extra = { xmult = 2, min = 2 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 5, y = 1 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.chips, e.mult } }
+            return { vars = { e.xmult, e.min } }
         end,
-        calculate = KAS.per_card(KAS.rank(14)),
+        calculate = KAS.cond(function(card, context, e) return KAS.contar(context.scoring_hand, KAS.rank(14)) >= e.min end),
     }
 end
 
@@ -464,8 +467,9 @@ do
         loc_txt = {
             name = "Caja Sorpresa",
             text = {
-                "Crea una carta de {C:tarot}Tarot{}",
-                "al seleccionar la {C:attention}ciega{}",
+                "Al seleccionar la {C:attention}ciega{}, crea una",
+                "carta de {C:tarot}Tarot{}, {C:planet}Planeta{} o",
+                "{C:spectral}Espectral{} al azar",
                 "{C:inactive}(Debe haber espacio)",
             },
         },
@@ -479,7 +483,7 @@ do
             local e = card.ability.extra
             return { vars = {  } }
         end,
-        calculate = KAS.create(KAS.T.blind, "Tarot", nil),
+        calculate = function(self, card, context) if context.setting_blind then local r = pseudorandom('kas_caja_sorpresa') return KAS.crear(r < 0.45 and 'Tarot' or r < 0.9 and 'Planet' or 'Spectral') end end,
     }
 end
 
@@ -490,21 +494,21 @@ do
         loc_txt = {
             name = "Arlequín",
             text = {
-                "{C:mult}+#1#{} multi por cada",
-                "{C:attention}comodín{} que tengas",
+                "{X:mult,C:white} +X#1# {} multi por cada",
+                "comodín a su {C:attention}izquierda{}",
             },
         },
-        config = { extra = { mult = 3 } },
-        rarity = 1,
-        cost = 5,
+        config = { extra = { step = 0.2 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 9, y = 1 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.step } }
         end,
-        calculate = KAS.dyn(function(card, context, e) return { mult = e.mult * #G.jokers.cards } end),
+        calculate = KAS.dyn(function(card, context, e) for i, j in ipairs(G.jokers.cards) do if j == card then if i > 1 then return { xmult = 1 + e.step * (i - 1) } end return end end end),
     }
 end
 
@@ -561,28 +565,27 @@ end
 
 -- 23. Conejo de la Suerte
 do
-    local al_entrar, al_salir = KAS.passive({ prob_mult = 2 })
     SMODS.Joker {
         key = "conejo_suerte",
         loc_txt = {
             name = "Conejo de la Suerte",
             text = {
-                "{C:attention}Duplica{} todas las",
-                "{C:green}probabilidades{} del juego",
+                "Cada carta puntuada tiene",
+                "{C:green}#1# entre #2#{} probabilidades de",
+                "{C:attention}reactivarse{}",
             },
         },
-        config = { extra = {  } },
+        config = { extra = { odds = 4, reps = 1 } },
         rarity = 3,
         cost = 8,
         atlas = "cartas",
         pos = { x = 2, y = 2 },
-        blueprint_compat = false,
+        blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = {  } }
+            return { vars = { KAS.prob(), e.odds } }
         end,
-        add_to_deck = al_entrar,
-        remove_from_deck = al_salir,
+        calculate = KAS.retrigger(function(c, context, e) return pseudorandom('kas_conejo_suerte') < KAS.prob() / e.odds end),
     }
 end
 
@@ -593,21 +596,21 @@ do
         loc_txt = {
             name = "Rey Rana",
             text = {
-                "{C:mult}+#1#{} multi si juegas",
-                "{C:attention}#2#{} cartas o menos",
+                "{X:mult,C:white} +X#1# {} multi por cada carta",
+                "que juegues por debajo de {C:attention}5{}",
             },
         },
-        config = { extra = { mult = 16, cards = 3 } },
-        rarity = 1,
-        cost = 4,
+        config = { extra = { step = 0.5 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 3, y = 2 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult, e.cards } }
+            return { vars = { e.step } }
         end,
-        calculate = KAS.cond(function(card, context, e) return #context.full_hand <= e.cards end),
+        calculate = KAS.dyn(function(card, context, e) local n = 5 - #context.full_hand if n > 0 then return { xmult = 1 + e.step * n } end end),
     }
 end
 
@@ -643,11 +646,11 @@ do
         loc_txt = {
             name = "Cuervo",
             text = {
-                "Gana {C:money}$#1#{} de {C:attention}valor de venta{}",
-                "al final de la ronda",
+                "Gana {C:money}$#1#{} de {C:attention}valor de venta{} cada",
+                "vez que juegas una {C:attention}Carta alta{}",
             },
         },
-        config = { extra = { gain = 2 } },
+        config = { extra = { gain = 1 } },
         rarity = 1,
         cost = 4,
         atlas = "cartas",
@@ -657,7 +660,7 @@ do
             local e = card.ability.extra
             return { vars = { e.gain } }
         end,
-        calculate = function(self, card, context) if KAS.T.round_end(context) and not context.blueprint then card.ability.extra_value = (card.ability.extra_value or 0) + card.ability.extra.gain card:set_cost() return { message = localize('k_val_up'), colour = G.C.MONEY } end end,
+        calculate = function(self, card, context) if context.before and not context.blueprint and context.scoring_name == 'High Card' then card.ability.extra_value = (card.ability.extra_value or 0) + card.ability.extra.gain card:set_cost() return { message = localize('k_val_up'), colour = G.C.MONEY } end end,
     }
 end
 
@@ -668,11 +671,11 @@ do
         loc_txt = {
             name = "Tigre",
             text = {
-                "{X:mult,C:white} X#1# {} multi si la mano",
-                "jugada contiene {C:attention}Escalera{}",
+                "{X:mult,C:white} X#1# {} multi si la mano contiene",
+                "una {C:attention}Escalera{} con un {C:attention}As{}",
             },
         },
-        config = { extra = { xmult = 2 } },
+        config = { extra = { xmult = 3 } },
         rarity = 3,
         cost = 8,
         atlas = "cartas",
@@ -682,7 +685,7 @@ do
             local e = card.ability.extra
             return { vars = { e.xmult } }
         end,
-        calculate = KAS.hand("Straight"),
+        calculate = KAS.cond(function(card, context) return next(context.poker_hands['Straight']) ~= nil and KAS.contar(context.scoring_hand, KAS.rank(14)) > 0 end),
     }
 end
 
@@ -739,16 +742,17 @@ end
 
 -- 30. Serpiente
 do
-    local al_entrar, al_salir = KAS.passive({ hand_size = 1 })
+    local al_entrar, al_salir = KAS.passive({ hand_size = 2, discards = -1 })
     SMODS.Joker {
         key = "serpiente",
         loc_txt = {
             name = "Serpiente",
             text = {
-                "{C:attention}+#1#{} tamaño de mano",
+                "{C:attention}+#1#{} tamaño de mano,",
+                "{C:red}-#2#{} descarte por ronda",
             },
         },
-        config = { extra = { n = 1 } },
+        config = { extra = { n = 2, m = 1 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -756,7 +760,7 @@ do
         blueprint_compat = false,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.n } }
+            return { vars = { e.n, e.m } }
         end,
         add_to_deck = al_entrar,
         remove_from_deck = al_salir,
@@ -847,11 +851,11 @@ do
         loc_txt = {
             name = "Estrella Polar",
             text = {
-                "Cada carta de {C:diamonds}Diamantes{} puntuada",
-                "da {C:mult}+#1#{} multi",
+                "Cada carta de {C:diamonds}Diamantes{} puntuada da",
+                "{C:mult}+#1#{} multi por cada {C:money}$#2#{} que tengas",
             },
         },
-        config = { extra = { mult = 3 } },
+        config = { extra = { mult = 1, per = 10 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -859,9 +863,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.mult, e.per } }
         end,
-        calculate = KAS.per_card(KAS.suit("Diamonds")),
+        calculate = KAS.per_card_fn(KAS.suit('Diamonds'), function(c, context, e) local n = math.floor(G.GAME.dollars / e.per) if n > 0 then return { mult = e.mult * n } end end),
     }
 end
 
@@ -923,12 +927,12 @@ do
         loc_txt = {
             name = "Bufón Cósmico",
             text = {
-                "Gana {X:mult,C:white} X#1# {} multi cada vez",
-                "que usas una carta de {C:planet}Planeta{}",
-                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
+                "Crea una carta de {C:planet}Planeta{}",
+                "cada vez que juegas una mano",
+                "{C:inactive}(Debe haber espacio)",
             },
         },
-        config = { extra = { gain = 0.25, xmult = 1 } },
+        config = { extra = {  } },
         rarity = 4,
         cost = 20,
         atlas = "cartas",
@@ -936,9 +940,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.gain, e.xmult } }
+            return { vars = {  } }
         end,
-        calculate = KAS.scale{ field = 'xmult', on = KAS.T.consumable('Planet') },
+        calculate = KAS.create(KAS.T.hand_played, "Planet"),
     }
 end
 
@@ -975,12 +979,12 @@ do
         loc_txt = {
             name = "Sombrero de Mago",
             text = {
-                "Gana {C:mult}+#1#{} multi cada vez",
-                "que usas una carta de {C:tarot}Tarot{}",
-                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
+                "Gana {C:chips}+#1#{} fichas por cada consumible usado;",
+                "se reinicia al final de la ronda",
+                "{C:inactive}(Actual: {C:chips}+#2#{C:inactive} fichas)",
             },
         },
-        config = { extra = { gain = 2, mult = 0 } },
+        config = { extra = { gain = 15, chips = 0 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -988,9 +992,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.gain, e.mult } }
+            return { vars = { e.gain, e.chips } }
         end,
-        calculate = KAS.scale{ field = 'mult', on = KAS.T.consumable('Tarot') },
+        calculate = KAS.scale{ field = 'chips', on = KAS.T.any_consumable, reset = KAS.T.round_end },
     }
 end
 
@@ -1054,11 +1058,11 @@ do
         loc_txt = {
             name = "Bufón Venenoso",
             text = {
-                "Cada carta de {C:clubs}Tréboles{} puntuada",
-                "da {C:mult}+#1#{} multi",
+                "{X:mult,C:white} X#1# {} multi si la mano puntuada",
+                "tiene {C:attention}#2#{} o más {C:clubs}Tréboles{}",
             },
         },
-        config = { extra = { mult = 3 } },
+        config = { extra = { xmult = 1.5, min = 3 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -1066,9 +1070,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.xmult, e.min } }
         end,
-        calculate = KAS.per_card(KAS.suit("Clubs")),
+        calculate = KAS.cond(function(card, context, e) return KAS.contar(context.scoring_hand, KAS.suit('Clubs')) >= e.min end),
     }
 end
 
@@ -1080,10 +1084,10 @@ do
             name = "Bufón de Piedra",
             text = {
                 "{C:chips}+#1#{} fichas por cada carta",
-                "que quede en tu {C:attention}baraja{}",
+                "de {C:attention}Piedra{} en tu baraja",
             },
         },
-        config = { extra = { chips = 2 } },
+        config = { extra = { chips = 50 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -1093,7 +1097,7 @@ do
             local e = card.ability.extra
             return { vars = { e.chips } }
         end,
-        calculate = KAS.dyn(function(card, context, e) return { chips = e.chips * #G.deck.cards } end),
+        calculate = KAS.dyn(function(card, context, e) local n = KAS.contar(G.playing_cards, KAS.mejora('m_stone')) if n > 0 then return { chips = e.chips * n } end end),
     }
 end
 
@@ -1180,12 +1184,11 @@ do
         loc_txt = {
             name = "Bufón Rubí",
             text = {
-                "Cada carta de {C:hearts}Corazones{} puntuada",
-                "tiene {C:green}#1# entre #2#{} probabilidades",
-                "de dar {X:mult,C:white} X#3# {} multi",
+                "{X:mult,C:white} X#1# {} multi si la mano puntuada",
+                "tiene exactamente {C:attention}un{} {C:hearts}Corazón{}",
             },
         },
-        config = { extra = { odds = 2, xmult = 1.5 } },
+        config = { extra = { xmult = 2 } },
         rarity = 2,
         cost = 6,
         atlas = "cartas",
@@ -1193,9 +1196,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { KAS.prob(), e.odds, e.xmult } }
+            return { vars = { e.xmult } }
         end,
-        calculate = KAS.per_card(KAS.suit("Hearts"), "kas_bufon_rubi"),
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.suit('Hearts')) == 1 end),
     }
 end
 
@@ -1207,20 +1210,20 @@ do
             name = "Bufón Diamante",
             text = {
                 "Cada carta de {C:diamonds}Diamantes{} puntuada",
-                "da {C:money}$#1#{}",
+                "sube {C:money}$#1#{} su {C:attention}valor de venta{}",
             },
         },
-        config = { extra = { dollars = 1 } },
+        config = { extra = { gain = 1 } },
         rarity = 2,
-        cost = 7,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 7, y = 4 },
-        blueprint_compat = true,
+        blueprint_compat = false,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.dollars } }
+            return { vars = { e.gain } }
         end,
-        calculate = KAS.per_card(KAS.suit("Diamonds")),
+        calculate = function(self, card, context) if context.individual and context.cardarea == G.play and not context.blueprint and context.other_card:is_suit('Diamonds') then card.ability.extra_value = (card.ability.extra_value or 0) + card.ability.extra.gain card:set_cost() return { message = localize('k_val_up'), colour = G.C.MONEY, card = card } end end,
     }
 end
 
@@ -1333,7 +1336,7 @@ do
         loc_txt = {
             name = "Tahúr",
             text = {
-                "Reactiva la {C:attention}primera{} carta",
+                "Reactiva la {C:attention}última{} carta",
                 "puntuada {C:attention}#1#{} veces más",
             },
         },
@@ -1347,7 +1350,7 @@ do
             local e = card.ability.extra
             return { vars = { e.reps } }
         end,
-        calculate = KAS.retrigger(KAS.first),
+        calculate = KAS.retrigger(function(c, context) return c == context.scoring_hand[#context.scoring_hand] end),
     }
 end
 
@@ -1358,12 +1361,12 @@ do
         loc_txt = {
             name = "Enterrador",
             text = {
-                "Gana {X:mult,C:white} X#1# {} multi cada vez que",
-                "vendes otro {C:attention}comodín{}",
+                "Gana {X:mult,C:white} X#1# {} multi por cada",
+                "carta {C:attention}destruida{}",
                 "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
             },
         },
-        config = { extra = { gain = 0.25, xmult = 1 } },
+        config = { extra = { gain = 0.2, xmult = 1 } },
         rarity = 3,
         cost = 8,
         atlas = "cartas",
@@ -1373,7 +1376,7 @@ do
             local e = card.ability.extra
             return { vars = { e.gain, e.xmult } }
         end,
-        calculate = KAS.scale{ field = 'xmult', on = KAS.T.sell_other_joker },
+        calculate = KAS.scale{ field = 'xmult', on = KAS.T.remove_cards },
     }
 end
 
@@ -1435,10 +1438,11 @@ do
             name = "Bufón Enamorado",
             text = {
                 "Cada carta de {C:hearts}Corazones{} puntuada",
-                "da {C:mult}+#1#{} multi",
+                "da tanto {C:mult}multi{} como su valor",
+                "{C:inactive}(Figuras 10, As 11)",
             },
         },
-        config = { extra = { mult = 3 } },
+        config = { extra = {  } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -1446,9 +1450,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = {  } }
         end,
-        calculate = KAS.per_card(KAS.suit("Hearts")),
+        calculate = KAS.per_card_fn(KAS.suit('Hearts'), function(c) return { mult = KAS.valor(c) } end),
     }
 end
 
@@ -1459,47 +1463,47 @@ do
         loc_txt = {
             name = "Bufón Duelista",
             text = {
-                "{C:mult}+#1#{} multi si la mano",
-                "jugada contiene {C:attention}Pareja{}",
+                "Gana {C:mult}+#1#{} multi por cada {C:attention}Pareja{} jugada;",
+                "se reinicia al final de la ronda",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
             },
         },
-        config = { extra = { mult = 8 } },
+        config = { extra = { gain = 4, mult = 0 } },
         rarity = 1,
-        cost = 3,
+        cost = 4,
         atlas = "cartas",
         pos = { x = 7, y = 5 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.gain, e.mult } }
         end,
-        calculate = KAS.hand("Pair"),
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.hand_type('Pair'), reset = KAS.T.round_end },
     }
 end
 
 -- 59. Malabarista
 do
-    local al_entrar, al_salir = KAS.passive({ discards = 1 })
     SMODS.Joker {
         key = "malabarista",
         loc_txt = {
             name = "Malabarista",
             text = {
-                "{C:red}+#1#{} descarte por ronda",
+                "Si descartas exactamente",
+                "{C:attention}#1#{} cartas, ganas {C:blue}+1{} mano",
             },
         },
-        config = { extra = { n = 1 } },
-        rarity = 1,
-        cost = 5,
+        config = { extra = { cards = 5 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 8, y = 5 },
         blueprint_compat = false,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.n } }
+            return { vars = { e.cards } }
         end,
-        add_to_deck = al_entrar,
-        remove_from_deck = al_salir,
+        calculate = function(self, card, context) if context.pre_discard and not context.blueprint and #G.hand.highlighted == card.ability.extra.cards then ease_hands_played(1) return { message = '+1', colour = G.C.BLUE } end end,
     }
 end
 
@@ -1510,21 +1514,21 @@ do
         loc_txt = {
             name = "Ladrón",
             text = {
-                "Cada carta de {C:attention}figura{}",
-                "puntuada da {C:money}$#1#{}",
+                "Al vender otro {C:attention}comodín{},",
+                "ganas su valor de venta otra vez",
             },
         },
-        config = { extra = { dollars = 1 } },
+        config = { extra = {  } },
         rarity = 2,
         cost = 6,
         atlas = "cartas",
         pos = { x = 9, y = 5 },
-        blueprint_compat = true,
+        blueprint_compat = false,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.dollars } }
+            return { vars = {  } }
         end,
-        calculate = KAS.per_card(KAS.face),
+        calculate = function(self, card, context) if KAS.T.sell_other_joker(context, card) and not context.blueprint then KAS.dinero(card, context.card.sell_cost) end end,
     }
 end
 
@@ -1587,7 +1591,7 @@ do
             name = "Piruleta",
             text = {
                 "{C:mult}+#1#{} multi,",
-                "pierde {C:mult}#2#{} multi al final de la ronda",
+                "pierde {C:mult}#2#{} multi cada vez que descartas",
             },
         },
         config = { extra = { mult = 20, loss = 4, gain = -4 } },
@@ -1600,7 +1604,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult, e.loss } }
         end,
-        calculate = KAS.scale{ field = 'mult', on = KAS.T.round_end, destroy_at = 0 },
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.pre_discard, destroy_at = 0 },
     }
 end
 
@@ -1611,21 +1615,21 @@ do
         loc_txt = {
             name = "Bufón Feliz",
             text = {
-                "{C:chips}+#1#{} fichas si la mano",
-                "jugada contiene {C:attention}Trío{}",
+                "Si la mano jugada es un {C:attention}Trío{},",
+                "reactiva todas las cartas puntuadas",
             },
         },
-        config = { extra = { chips = 100 } },
-        rarity = 1,
-        cost = 4,
+        config = { extra = { reps = 1 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 3, y = 6 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.chips } }
+            return { vars = {  } }
         end,
-        calculate = KAS.hand("Three of a Kind"),
+        calculate = KAS.retrigger(KAS.jugada('Three of a Kind')),
     }
 end
 
@@ -1636,11 +1640,11 @@ do
         loc_txt = {
             name = "Mago de la Moneda",
             text = {
-                "{C:mult}+#1#{} multi por cada",
+                "{X:mult,C:white} +X#1# {} multi por cada",
                 "{C:money}$#2#{} que tengas",
             },
         },
-        config = { extra = { mult = 2, per = 5 } },
+        config = { extra = { step = 0.1, per = 10 } },
         rarity = 2,
         cost = 7,
         atlas = "cartas",
@@ -1648,9 +1652,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult, e.per } }
+            return { vars = { e.step, e.per } }
         end,
-        calculate = KAS.dyn(function(card, context, e) local n = math.floor(G.GAME.dollars / e.per) if n > 0 then return { mult = e.mult * n } end end),
+        calculate = KAS.dyn(function(card, context, e) local n = math.floor(G.GAME.dollars / e.per) if n > 0 then return { xmult = 1 + e.step * n } end end),
     }
 end
 
@@ -1661,13 +1665,13 @@ do
         loc_txt = {
             name = "Guitarrista",
             text = {
-                "Reactiva cada {C:attention}2{}, {C:attention}3{},",
-                "{C:attention}4{} o {C:attention}5{} puntuado",
+                "Si la mano contiene una {C:attention}Escalera{},",
+                "reactiva todas las cartas puntuadas",
             },
         },
         config = { extra = { reps = 1 } },
         rarity = 2,
-        cost = 6,
+        cost = 7,
         atlas = "cartas",
         pos = { x = 5, y = 6 },
         blueprint_compat = true,
@@ -1675,7 +1679,7 @@ do
             local e = card.ability.extra
             return { vars = {  } }
         end,
-        calculate = KAS.retrigger(KAS.rank(2, 3, 4, 5)),
+        calculate = KAS.retrigger(KAS.jugada('Straight', 'Straight Flush')),
     }
 end
 
@@ -1686,12 +1690,13 @@ do
         loc_txt = {
             name = "Bufón de los Globos",
             text = {
-                "{C:mult}+#1#{} multi;",
+                "Gana {C:mult}+#1#{} multi por cada mano jugada;",
                 "{C:green}#2# entre #3#{} probabilidades de",
-                "explotar al final de la ronda",
+                "{C:attention}explotar{} y volver a 0",
+                "{C:inactive}(Actual: {C:mult}+#4#{C:inactive} multi)",
             },
         },
-        config = { extra = { mult = 15, break_odds = 6 } },
+        config = { extra = { gain = 3, odds = 6, mult = 0 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -1699,10 +1704,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult, KAS.prob(), e.break_odds } }
+            return { vars = { e.gain, KAS.prob(), e.odds, e.mult } }
         end,
-        calculate = KAS.combine(KAS.flat(), KAS.fragile("kas_bufon_globos")),
-        eternal_compat = false,
+        calculate = function(self, card, context) local e = card.ability.extra if context.before and not context.blueprint then if pseudorandom('kas_bufon_globos') < KAS.prob() / e.odds then e.mult = 0 return { message = '¡Pop!', colour = G.C.RED } end e.mult = e.mult + e.gain return { message = localize('k_upgrade_ex'), colour = G.C.MULT } end if context.joker_main and e.mult > 0 then return { mult = e.mult } end end,
     }
 end
 
@@ -1713,13 +1717,13 @@ do
         loc_txt = {
             name = "Bufón Sonriente",
             text = {
-                "Cada carta de {C:attention}figura{}",
-                "puntuada da {C:mult}+#1#{} multi",
+                "Cada carta de {C:attention}figura{} puntuada da",
+                "{C:mult}+#1#{} multi por cada figura puntuada",
             },
         },
-        config = { extra = { mult = 5 } },
+        config = { extra = { mult = 2 } },
         rarity = 1,
-        cost = 4,
+        cost = 5,
         atlas = "cartas",
         pos = { x = 7, y = 6 },
         blueprint_compat = true,
@@ -1727,7 +1731,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult } }
         end,
-        calculate = KAS.per_card(KAS.face),
+        calculate = KAS.per_card_fn(KAS.face, function(c, context, e) return { mult = e.mult * KAS.contar(context.scoring_hand, KAS.face) } end),
     }
 end
 
@@ -1738,12 +1742,12 @@ do
         loc_txt = {
             name = "Bola 8",
             text = {
-                "Cada {C:attention}8{} puntuado tiene",
-                "{C:green}#1# entre #2#{} probabilidades",
-                "de crear una carta de {C:tarot}Tarot{}",
+                "Si la mano puntuada tiene un {C:attention}8{},",
+                "{C:green}#1# entre #2#{} probabilidades de crear",
+                "una carta {C:spectral}Espectral{}",
             },
         },
-        config = { extra = { odds = 4 } },
+        config = { extra = { odds = 8 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -1753,7 +1757,7 @@ do
             local e = card.ability.extra
             return { vars = { KAS.prob(), e.odds } }
         end,
-        calculate = function(self, card, context) if context.individual and context.cardarea == G.play and context.other_card:get_id() == 8 and pseudorandom('kas_bola_ocho') < KAS.prob() / card.ability.extra.odds then return KAS.crear('Tarot') end end,
+        calculate = KAS.create(function(context) return context.before and KAS.contar(context.scoring_hand, KAS.rank(8)) > 0 end, 'Spectral', 'kas_bola_ocho'),
     }
 end
 
@@ -1764,21 +1768,22 @@ do
         loc_txt = {
             name = "Bufón Molón",
             text = {
-                "{C:mult}+#1#{} multi si la mano",
-                "jugada contiene {C:attention}Escalera{}",
+                "Gana {C:mult}+#1#{} multi cada vez",
+                "que juegas una {C:attention}Escalera{}",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
             },
         },
-        config = { extra = { mult = 12 } },
+        config = { extra = { gain = 4, mult = 0 } },
         rarity = 1,
-        cost = 4,
+        cost = 5,
         atlas = "cartas",
         pos = { x = 9, y = 6 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.gain, e.mult } }
         end,
-        calculate = KAS.hand("Straight"),
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.hand_type('Straight') },
     }
 end
 
@@ -1889,11 +1894,11 @@ do
         loc_txt = {
             name = "Cofre del Tesoro",
             text = {
-                "Al final de la ronda ganas {C:money}$#1#{}",
-                "por cada {C:attention}descarte{} restante",
+                "Al final de la ronda ganas {C:money}$1{} por cada",
+                "{C:attention}#1#{} cartas que queden en tu baraja",
             },
         },
-        config = { extra = { dollars = 1 } },
+        config = { extra = { per = 10 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas",
@@ -1901,9 +1906,9 @@ do
         blueprint_compat = false,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.dollars } }
+            return { vars = { e.per } }
         end,
-        calc_dollar_bonus = function(self, card) local n = G.GAME.current_round.discards_left if n > 0 then return n * card.ability.extra.dollars end end,
+        calc_dollar_bonus = function(self, card) local n = math.floor(#G.deck.cards / card.ability.extra.per) if n > 0 then return n end end,
     }
 end
 
@@ -1914,21 +1919,21 @@ do
         loc_txt = {
             name = "Calaverita",
             text = {
-                "Cada carta {C:attention}impar{} puntuada",
-                "{C:inactive}(A, 9, 7, 5, 3){} da {C:chips}+#1#{} fichas",
+                "{X:mult,C:white} X#1# {} multi si todas las cartas",
+                "puntuadas son {C:attention}impares{}",
             },
         },
-        config = { extra = { chips = 31 } },
-        rarity = 1,
-        cost = 4,
+        config = { extra = { xmult = 1.5 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 5, y = 7 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.chips } }
+            return { vars = { e.xmult } }
         end,
-        calculate = KAS.per_card(KAS.odd),
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.odd) == #context.scoring_hand end),
     }
 end
 
@@ -2065,13 +2070,13 @@ do
         loc_txt = {
             name = "Bufón de los Dados",
             text = {
-                "Da entre {C:mult}+#1#{} y {C:mult}+#2#{}",
-                "multi al azar",
+                "Cada carta puntuada tira un dado",
+                "y da entre {C:mult}+#1#{} y {C:mult}+#2#{} multi",
             },
         },
-        config = { extra = { min = 1, max = 20 } },
+        config = { extra = { min = 1, max = 6 } },
         rarity = 1,
-        cost = 4,
+        cost = 5,
         atlas = "cartas",
         pos = { x = 1, y = 8 },
         blueprint_compat = true,
@@ -2079,7 +2084,7 @@ do
             local e = card.ability.extra
             return { vars = { e.min, e.max } }
         end,
-        calculate = KAS.dyn(function(card, context, e) return { mult = pseudorandom('kas_bufon_dados', e.min, e.max) } end),
+        calculate = KAS.per_card_fn(KAS.any, function(c, context, e) return { mult = pseudorandom('kas_bufon_dados', e.min, e.max) } end),
     }
 end
 
@@ -2140,22 +2145,21 @@ do
         loc_txt = {
             name = "Farolero",
             text = {
-                "Gana {C:chips}+#1#{} fichas por cada",
-                "carta puntuada",
-                "{C:inactive}(Actual: {C:chips}+#2#{C:inactive} fichas)",
+                "{X:mult,C:white} X#1# {} multi si quedan {C:attention}#2#{}",
+                "cartas o menos en tu baraja",
             },
         },
-        config = { extra = { gain = 2, chips = 0 } },
-        rarity = 1,
-        cost = 5,
+        config = { extra = { xmult = 1.5, cards = 10 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas",
         pos = { x = 4, y = 8 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.gain, e.chips } }
+            return { vars = { e.xmult, e.cards } }
         end,
-        calculate = KAS.scale{ field = 'chips', on = function(context) return context.before and #context.scoring_hand end },
+        calculate = KAS.cond(function(card, context, e) return #G.deck.cards <= e.cards end),
     }
 end
 
@@ -2191,21 +2195,21 @@ do
         loc_txt = {
             name = "Pulpo",
             text = {
-                "Cada {C:attention}8{} puntuado",
-                "da {C:mult}+#1#{} multi",
+                "{X:mult,C:white} X#1# {} multi si la mano puntuada",
+                "tiene {C:attention}dos 8{} o más",
             },
         },
-        config = { extra = { mult = 8 } },
+        config = { extra = { xmult = 1.8 } },
         rarity = 1,
-        cost = 4,
+        cost = 5,
         atlas = "cartas",
         pos = { x = 6, y = 8 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.xmult } }
         end,
-        calculate = KAS.per_card(KAS.rank(8)),
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.rank(8)) >= 2 end),
     }
 end
 
@@ -2345,11 +2349,12 @@ do
         loc_txt = {
             name = "Hipnosis",
             text = {
-                "Reactiva todas las cartas puntuadas",
-                "en la {C:attention}última mano{} de la ronda",
+                "Si juegas la {C:attention}misma{} mano que la",
+                "anterior, reactiva todas las",
+                "cartas puntuadas",
             },
         },
-        config = { extra = { reps = 1 } },
+        config = { extra = { reps = 1, last = "", repite = 0 } },
         rarity = 3,
         cost = 8,
         atlas = "cartas",
@@ -2359,7 +2364,7 @@ do
             local e = card.ability.extra
             return { vars = {  } }
         end,
-        calculate = KAS.retrigger(KAS.last_hand),
+        calculate = function(self, card, context) local e = card.ability.extra if context.before and not context.blueprint then e.repite = (e.last == G.GAME.last_hand_played) and 1 or 0 e.last = G.GAME.last_hand_played end if context.repetition and context.cardarea == G.play and e.repite == 1 then return { repetitions = e.reps } end end,
     }
 end
 
@@ -2424,11 +2429,11 @@ do
         loc_txt = {
             name = "Bufón Ajedrecista",
             text = {
-                "{X:mult,C:white} X#1# {} multi cada {C:attention}#2#{} manos",
-                "jugadas",
+                "Manos {C:attention}impares{}: {X:mult,C:white} X#1# {} multi",
+                "Manos {C:attention}pares{}: {C:chips}+#2#{} fichas",
             },
         },
-        config = { extra = { xmult = 3, every = 3, count = 0 } },
+        config = { extra = { xmult = 2, chips = 60, count = 0 } },
         rarity = 2,
         cost = 7,
         atlas = "cartas",
@@ -2436,9 +2441,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.xmult, e.every } }
+            return { vars = { e.xmult, e.chips } }
         end,
-        calculate = function(self, card, context) local e = card.ability.extra if context.before and not context.blueprint then e.count = e.count + 1 end if context.joker_main and e.count % e.every == 0 then return { xmult = e.xmult } end end,
+        calculate = function(self, card, context) local e = card.ability.extra if context.before and not context.blueprint then e.count = e.count + 1 end if context.joker_main then if e.count % 2 == 1 then return { xmult = e.xmult } end return { chips = e.chips } end end,
     }
 end
 
@@ -2652,13 +2657,13 @@ do
         loc_txt = {
             name = "Ciprés Esmeralda",
             text = {
-                "{C:mult}+#1#{} multi si la mano",
-                "jugada contiene {C:attention}Color{}",
+                "Si la mano contiene un {C:attention}Color{},",
+                "cada carta puntuada da {C:mult}+#1#{} multi",
             },
         },
-        config = { extra = { mult = 15 } },
+        config = { extra = { mult = 3 } },
         rarity = 1,
-        cost = 4,
+        cost = 5,
         atlas = "cartas2",
         pos = { x = 4, y = 0 },
         blueprint_compat = true,
@@ -2666,7 +2671,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult } }
         end,
-        calculate = KAS.hand("Flush"),
+        calculate = KAS.per_card(KAS.jugada('Flush', 'Straight Flush', 'Flush House', 'Flush Five')),
     }
 end
 
@@ -2753,11 +2758,11 @@ do
         loc_txt = {
             name = "Gato de Esmoquin",
             text = {
-                "Cada carta de {C:spades}Picas{} puntuada",
-                "da {C:chips}+#1#{} fichas",
+                "Cada carta de {C:spades}Picas{} puntuada da",
+                "el {C:attention}doble{} de su valor en {C:chips}fichas{}",
             },
         },
-        config = { extra = { chips = 30 } },
+        config = { extra = {  } },
         rarity = 1,
         cost = 4,
         atlas = "cartas2",
@@ -2765,9 +2770,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.chips } }
+            return { vars = {  } }
         end,
-        calculate = KAS.per_card(KAS.suit("Spades")),
+        calculate = KAS.per_card_fn(KAS.suit('Spades'), function(c) return { chips = 2 * KAS.valor(c) } end),
     }
 end
 
@@ -2778,13 +2783,13 @@ do
         loc_txt = {
             name = "Perro Santo",
             text = {
-                "Cada carta de {C:hearts}Corazones{} puntuada",
-                "da {C:money}$#1#{}",
+                "Ganas {C:money}$#1#{} si la mano puntuada",
+                "tiene {C:attention}5{} cartas de {C:hearts}Corazones{}",
             },
         },
-        config = { extra = { dollars = 1 } },
+        config = { extra = { dollars = 5 } },
         rarity = 2,
-        cost = 7,
+        cost = 6,
         atlas = "cartas2",
         pos = { x = 9, y = 0 },
         blueprint_compat = true,
@@ -2792,7 +2797,7 @@ do
             local e = card.ability.extra
             return { vars = { e.dollars } }
         end,
-        calculate = KAS.per_card(KAS.suit("Hearts")),
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.suit('Hearts')) >= 5 end),
     }
 end
 
@@ -2829,13 +2834,13 @@ do
         loc_txt = {
             name = "Estrella Azul",
             text = {
-                "{X:mult,C:white} X#1# {} multi si la mano",
-                "jugada contiene {C:attention}Color{}",
+                "Si la mano contiene un {C:attention}Color{},",
+                "cada carta puntuada da {X:mult,C:white} X#1# {} multi",
             },
         },
-        config = { extra = { xmult = 1.5 } },
+        config = { extra = { xmult = 1.1 } },
         rarity = 2,
-        cost = 6,
+        cost = 7,
         atlas = "cartas2",
         pos = { x = 11, y = 0 },
         blueprint_compat = true,
@@ -2843,7 +2848,7 @@ do
             local e = card.ability.extra
             return { vars = { e.xmult } }
         end,
-        calculate = KAS.hand("Flush"),
+        calculate = KAS.per_card(KAS.jugada('Flush', 'Straight Flush', 'Flush House', 'Flush Five')),
     }
 end
 
@@ -2879,11 +2884,11 @@ do
         loc_txt = {
             name = "Sombra Encapuchada",
             text = {
-                "{X:mult,C:white} X#1# {} multi si no te",
-                "quedan {C:attention}descartes{}",
+                "{X:mult,C:white} X#1# {} multi en la {C:attention}última mano{}",
+                "si no te quedan {C:attention}descartes{}",
             },
         },
-        config = { extra = { xmult = 2 } },
+        config = { extra = { xmult = 2.5 } },
         rarity = 2,
         cost = 6,
         atlas = "cartas2",
@@ -2893,7 +2898,7 @@ do
             local e = card.ability.extra
             return { vars = { e.xmult } }
         end,
-        calculate = KAS.cond(function() return G.GAME.current_round.discards_left == 0 end),
+        calculate = KAS.cond(function() return G.GAME.current_round.hands_left == 0 and G.GAME.current_round.discards_left == 0 end),
     }
 end
 
@@ -3056,21 +3061,21 @@ do
         loc_txt = {
             name = "Rey Oscuro",
             text = {
-                "Cada {C:attention}Rey{} que tengas",
-                "en la mano da {X:mult,C:white} X#1# {} multi",
+                "Cada {C:attention}Rey{} puntuado da {C:money}$#1#{}",
+                "por cada Rey que tengas en la mano",
             },
         },
-        config = { extra = { xmult = 1.5 } },
-        rarity = 3,
-        cost = 8,
+        config = { extra = { dollars = 1 } },
+        rarity = 2,
+        cost = 7,
         atlas = "cartas2",
         pos = { x = 7, y = 1 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.xmult } }
+            return { vars = { e.dollars } }
         end,
-        calculate = KAS.held(KAS.rank(13)),
+        calculate = KAS.per_card_fn(KAS.rank(13), function(c, context, e) local n = KAS.contar(G.hand.cards, KAS.rank(13)) if n > 0 then return { dollars = e.dollars * n } end end),
     }
 end
 
@@ -3156,21 +3161,22 @@ do
         loc_txt = {
             name = "Demonio Rojo",
             text = {
-                "{C:mult}+#1#{} multi si la mano",
-                "jugada contiene {C:attention}Trío{}",
+                "Gana {C:mult}+#1#{} multi cada vez",
+                "que juegas un {C:attention}Trío{}",
+                "{C:inactive}(Actual: {C:mult}+#2#{C:inactive} multi)",
             },
         },
-        config = { extra = { mult = 12 } },
+        config = { extra = { gain = 3, mult = 0 } },
         rarity = 1,
-        cost = 4,
+        cost = 5,
         atlas = "cartas2",
         pos = { x = 11, y = 1 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.gain, e.mult } }
         end,
-        calculate = KAS.hand("Three of a Kind"),
+        calculate = KAS.scale{ field = 'mult', on = KAS.T.hand_type('Three of a Kind') },
     }
 end
 
@@ -3333,11 +3339,11 @@ do
         loc_txt = {
             name = "Bufón Dorado",
             text = {
-                "Ganas {C:money}$#1#{} al final",
-                "de la ronda",
+                "Ganas {C:money}$#1#{} al final de la ronda por",
+                "cada carta de {C:attention}Oro{} de tu baraja",
             },
         },
-        config = { extra = { dollars = 4 } },
+        config = { extra = { dollars = 2 } },
         rarity = 1,
         cost = 6,
         atlas = "cartas2",
@@ -3347,7 +3353,7 @@ do
             local e = card.ability.extra
             return { vars = { e.dollars } }
         end,
-        calc_dollar_bonus = function(self, card) return card.ability.extra.dollars end,
+        calc_dollar_bonus = function(self, card) local n = KAS.contar(G.playing_cards, KAS.mejora('m_gold')) if n > 0 then return n * card.ability.extra.dollars end end,
     }
 end
 
@@ -3835,11 +3841,12 @@ do
         loc_txt = {
             name = "Rey de los Bufones",
             text = {
-                "Reactiva cada carta de",
-                "{C:attention}figura{} puntuada {C:attention}#1#{} veces más",
+                "Cada carta de {C:attention}figura{} puntuada",
+                "se reactiva una vez por cada",
+                "{C:attention}Rey{} en la mano puntuada",
             },
         },
-        config = { extra = { reps = 2 } },
+        config = { extra = {  } },
         rarity = 4,
         cost = 20,
         atlas = "cartas2",
@@ -3847,9 +3854,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.reps } }
+            return { vars = {  } }
         end,
-        calculate = KAS.retrigger(KAS.face),
+        calculate = function(self, card, context) if context.repetition and context.cardarea == G.play and context.other_card:is_face() then local n = KAS.contar(context.scoring_hand, KAS.rank(13)) if n > 0 then return { repetitions = n } end end end,
     }
 end
 
@@ -3910,11 +3917,12 @@ do
         loc_txt = {
             name = "Hombre Lobo",
             text = {
-                "{X:mult,C:white} X#1# {} multi si la mano",
-                "jugada contiene {C:attention}Póker{}",
+                "Gana {X:mult,C:white} X#1# {} multi cada vez",
+                "que juegas un {C:attention}Póker{}",
+                "{C:inactive}(Actual: {X:mult,C:white} X#2# {C:inactive} multi)",
             },
         },
-        config = { extra = { xmult = 2.5 } },
+        config = { extra = { gain = 1, xmult = 1 } },
         rarity = 3,
         cost = 8,
         atlas = "cartas2",
@@ -3922,9 +3930,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.xmult } }
+            return { vars = { e.gain, e.xmult } }
         end,
-        calculate = KAS.hand("Four of a Kind"),
+        calculate = KAS.scale{ field = 'xmult', on = KAS.T.hand_type('Four of a Kind') },
     }
 end
 
@@ -3961,13 +3969,12 @@ do
             name = "Bestia Sombría",
             text = {
                 "{X:mult,C:white} +X#1# {} multi por cada",
-                "espacio de {C:attention}comodín{} vacío",
-                "{C:inactive}(Este comodín cuenta como vacío)",
+                "espacio de {C:attention}consumible{} vacío",
             },
         },
-        config = { extra = { step = 1 } },
+        config = { extra = { step = 0.5 } },
         rarity = 2,
-        cost = 8,
+        cost = 6,
         atlas = "cartas2",
         pos = { x = 4, y = 4 },
         blueprint_compat = true,
@@ -3975,7 +3982,7 @@ do
             local e = card.ability.extra
             return { vars = { e.step } }
         end,
-        calculate = KAS.dyn(function(card, context, e) local n = G.jokers.config.card_limit - #G.jokers.cards + 1 if n > 0 then return { xmult = 1 + e.step * n } end end),
+        calculate = KAS.dyn(function(card, context, e) local n = G.consumeables.config.card_limit - #G.consumeables.cards if n > 0 then return { xmult = 1 + e.step * n } end end),
     }
 end
 
@@ -4189,7 +4196,8 @@ do
         loc_txt = {
             name = "Bufón Azur",
             text = {
-                "{C:chips}+#1#{} fichas",
+                "{C:chips}+#1#{} fichas; el {C:attention}doble{} en la",
+                "primera mano de la ronda",
             },
         },
         config = { extra = { chips = 50 } },
@@ -4202,7 +4210,7 @@ do
             local e = card.ability.extra
             return { vars = { e.chips } }
         end,
-        calculate = KAS.flat(),
+        calculate = KAS.dyn(function(card, context, e) return { chips = KAS.first_hand() and e.chips * 2 or e.chips } end),
     }
 end
 
@@ -4213,21 +4221,21 @@ do
         loc_txt = {
             name = "Bufoncillo",
             text = {
-                "{C:mult}+#1#{} multi si juegas",
-                "{C:attention}#2#{} cartas o menos",
+                "{C:mult}+#1#{} multi por cada carta de valor",
+                "{C:attention}5 o menos{} puntuada",
             },
         },
-        config = { extra = { mult = 12, cards = 2 } },
+        config = { extra = { mult = 3 } },
         rarity = 1,
-        cost = 3,
+        cost = 4,
         atlas = "cartas3",
         pos = { x = 1, y = 0 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult, e.cards } }
+            return { vars = { e.mult } }
         end,
-        calculate = KAS.cond(function(card, context, e) return #context.full_hand <= e.cards end),
+        calculate = KAS.dyn(function(card, context, e) local n = KAS.contar(context.scoring_hand, KAS.rank(2, 3, 4, 5)) if n > 0 then return { mult = e.mult * n } end end),
     }
 end
 
@@ -4365,13 +4373,13 @@ do
         loc_txt = {
             name = "Simio Fantasma",
             text = {
-                "{C:chips}+#1#{} fichas por cada",
-                "{C:attention}comodín{} que tengas",
+                "{C:chips}+#1#{} fichas por cada comodín",
+                "{C:green}Poco común{} o mejor que tengas",
             },
         },
-        config = { extra = { chips = 20 } },
+        config = { extra = { chips = 25 } },
         rarity = 1,
-        cost = 4,
+        cost = 5,
         atlas = "cartas3",
         pos = { x = 7, y = 0 },
         blueprint_compat = true,
@@ -4379,7 +4387,7 @@ do
             local e = card.ability.extra
             return { vars = { e.chips } }
         end,
-        calculate = KAS.dyn(function(card, context, e) return { chips = e.chips * #G.jokers.cards } end),
+        calculate = KAS.dyn(function(card, context, e) local n = 0 for _, j in ipairs(G.jokers.cards) do if j.config.center.rarity ~= 1 then n = n + 1 end end if n > 0 then return { chips = e.chips * n } end end),
     }
 end
 
@@ -4492,10 +4500,10 @@ do
             text = {
                 "{X:mult,C:white} X#1# {} multi;",
                 "{C:green}#2# entre #3#{} probabilidades de",
-                "destruirse al final de la ronda",
+                "destruirse cada vez que {C:attention}descartas{}",
             },
         },
-        config = { extra = { xmult = 3, break_odds = 8 } },
+        config = { extra = { xmult = 3, break_odds = 4 } },
         rarity = 3,
         cost = 8,
         atlas = "cartas3",
@@ -4505,7 +4513,7 @@ do
             local e = card.ability.extra
             return { vars = { e.xmult, KAS.prob(), e.break_odds } }
         end,
-        calculate = KAS.combine(KAS.flat(), KAS.fragile("kas_demonio_blanco")),
+        calculate = KAS.combine(KAS.flat(), function(self, card, context) if context.pre_discard and not context.blueprint and pseudorandom('kas_demonio_blanco') < KAS.prob() / card.ability.extra.break_odds then KAS.destruir(card) return { message = localize('k_extinct_ex'), colour = G.C.RED } end end),
         eternal_compat = false,
     }
 end
@@ -4542,12 +4550,12 @@ do
         loc_txt = {
             name = "Científico Loco",
             text = {
-                "Gana {C:chips}+#1#{} fichas cada vez",
-                "que usas una carta de {C:tarot}Tarot{}",
-                "{C:inactive}(Actual: {C:chips}+#2#{C:inactive} fichas)",
+                "{C:green}#1# entre #2#{} probabilidades de crear",
+                "una carta de {C:planet}Planeta{} cada",
+                "vez que usas un {C:tarot}Tarot{}",
             },
         },
-        config = { extra = { gain = 10, chips = 0 } },
+        config = { extra = { odds = 3 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas3",
@@ -4555,9 +4563,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.gain, e.chips } }
+            return { vars = { KAS.prob(), e.odds } }
         end,
-        calculate = KAS.scale{ field = 'chips', on = KAS.T.consumable('Tarot') },
+        calculate = KAS.create(KAS.T.consumable('Tarot'), "Planet", "kas_cientifico_loco"),
     }
 end
 
@@ -4593,13 +4601,13 @@ do
         loc_txt = {
             name = "Conejo Rosa",
             text = {
-                "Cada {C:attention}2{} puntuado",
-                "da {C:mult}+#1#{} multi",
+                "Cada {C:attention}2{} puntuado da {C:mult}+#1#{} multi",
+                "por cada 2 de tu baraja completa",
             },
         },
-        config = { extra = { mult = 6 } },
+        config = { extra = { mult = 1 } },
         rarity = 1,
-        cost = 3,
+        cost = 4,
         atlas = "cartas3",
         pos = { x = 3, y = 1 },
         blueprint_compat = true,
@@ -4607,7 +4615,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult } }
         end,
-        calculate = KAS.per_card(KAS.rank(2)),
+        calculate = KAS.per_card_fn(KAS.rank(2), function(c, context, e) return { mult = e.mult * KAS.contar(G.playing_cards, KAS.rank(2)) } end),
     }
 end
 
@@ -4669,8 +4677,8 @@ do
         loc_txt = {
             name = "Bufón Cortesano",
             text = {
-                "Cada {C:attention}Reina{} que tengas",
-                "en la mano da {C:mult}+#1#{} multi",
+                "Cada {C:attention}Reina{} puntuada da {C:mult}+#1#{} multi",
+                "por cada {C:attention}Rey{} que tengas en la mano",
             },
         },
         config = { extra = { mult = 6 } },
@@ -4683,7 +4691,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult } }
         end,
-        calculate = KAS.held(KAS.rank(12)),
+        calculate = KAS.per_card_fn(KAS.rank(12), function(c, context, e) local n = KAS.contar(G.hand.cards, KAS.rank(13)) if n > 0 then return { mult = e.mult * n } end end),
     }
 end
 
@@ -4820,11 +4828,11 @@ do
         loc_txt = {
             name = "Gato Brujo",
             text = {
-                "Al seleccionar la {C:attention}ciega{},",
-                "ganas {C:red}+#1#{} descarte",
+                "Al seleccionar la {C:attention}ciega{}, ganas",
+                "{C:blue}+1{} mano o {C:red}+1{} descarte al azar",
             },
         },
-        config = { extra = { n = 1 } },
+        config = { extra = {  } },
         rarity = 2,
         cost = 6,
         atlas = "cartas3",
@@ -4832,9 +4840,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.n } }
+            return { vars = {  } }
         end,
-        calculate = function(self, card, context) if context.setting_blind then ease_discard(card.ability.extra.n) return { message = '+' .. card.ability.extra.n, colour = G.C.RED } end end,
+        calculate = function(self, card, context) if context.setting_blind then if pseudorandom('kas_gato_brujo') < 0.5 then ease_hands_played(1) return { message = '+1', colour = G.C.BLUE } end ease_discard(1) return { message = '+1', colour = G.C.RED } end end,
     }
 end
 
@@ -4891,17 +4899,17 @@ end
 
 -- 194. Conejo Blanco
 do
-    local al_entrar, al_salir = KAS.passive({ discards = 2, hands = -1 })
+    local al_entrar, al_salir = KAS.passive({ hands = 1, discards = -2 })
     SMODS.Joker {
         key = "conejo_blanco",
         loc_txt = {
             name = "Conejo Blanco",
             text = {
-                "{C:red}+#1#{} descartes por ronda,",
-                "{C:blue}-#2#{} mano por ronda",
+                "{C:blue}+#1#{} mano por ronda,",
+                "{C:red}-#2#{} descartes por ronda",
             },
         },
-        config = { extra = { n = 2, m = 1 } },
+        config = { extra = { n = 1, m = 2 } },
         rarity = 2,
         cost = 6,
         atlas = "cartas3",
@@ -5000,10 +5008,10 @@ do
             name = "Lingote de Oro",
             text = {
                 "Ganas {C:money}$#1#{} al final de la ronda",
-                "si no has usado {C:attention}descartes{}",
+                "si la superas con {C:attention}una sola{} mano",
             },
         },
-        config = { extra = { dollars = 5 } },
+        config = { extra = { dollars = 6 } },
         rarity = 1,
         cost = 6,
         atlas = "cartas3",
@@ -5013,7 +5021,7 @@ do
             local e = card.ability.extra
             return { vars = { e.dollars } }
         end,
-        calc_dollar_bonus = function(self, card) if G.GAME.current_round.discards_used == 0 then return card.ability.extra.dollars end end,
+        calc_dollar_bonus = function(self, card) if G.GAME.current_round.hands_played == 1 then return card.ability.extra.dollars end end,
     }
 end
 
@@ -5050,10 +5058,10 @@ do
             name = "Cubo de Hielo",
             text = {
                 "{C:chips}+#1#{} fichas,",
-                "pierde {C:chips}#2#{} fichas por mano jugada",
+                "pierde {C:chips}#2#{} fichas cada vez que descartas",
             },
         },
-        config = { extra = { chips = 100, loss = 5, gain = -5 } },
+        config = { extra = { chips = 120, loss = 10, gain = -10 } },
         rarity = 1,
         cost = 5,
         atlas = "cartas3",
@@ -5063,7 +5071,7 @@ do
             local e = card.ability.extra
             return { vars = { e.chips, e.loss } }
         end,
-        calculate = KAS.scale{ field = 'chips', on = KAS.T.hand_played, destroy_at = 0 },
+        calculate = KAS.scale{ field = 'chips', on = KAS.T.pre_discard, destroy_at = 0 },
     }
 end
 
@@ -5125,21 +5133,21 @@ do
         loc_txt = {
             name = "El Encapuchado",
             text = {
-                "{C:chips}+#1#{} fichas si la mano",
-                "jugada contiene {C:attention}Color{}",
+                "{X:mult,C:white} X#1# {} multi si todas las cartas puntuadas",
+                "son {C:spades}Picas{} o {C:clubs}Tréboles{}",
             },
         },
-        config = { extra = { chips = 80 } },
-        rarity = 1,
-        cost = 4,
+        config = { extra = { xmult = 2 } },
+        rarity = 2,
+        cost = 6,
         atlas = "cartas3",
         pos = { x = 11, y = 2 },
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.chips } }
+            return { vars = { e.xmult } }
         end,
-        calculate = KAS.hand("Flush"),
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, KAS.suit('Spades', 'Clubs')) == #context.scoring_hand end),
     }
 end
 
@@ -5251,11 +5259,11 @@ do
         loc_txt = {
             name = "Bufón Nocturno",
             text = {
-                "{C:mult}+#1#{} multi en la",
-                "{C:attention}última mano{} de la ronda",
+                "{C:mult}+#1#{} multi si la mano puntuada",
+                "no tiene {C:attention}figuras{} ni {C:attention}Ases{}",
             },
         },
-        config = { extra = { mult = 20 } },
+        config = { extra = { mult = 25 } },
         rarity = 1,
         cost = 4,
         atlas = "cartas3",
@@ -5265,7 +5273,7 @@ do
             local e = card.ability.extra
             return { vars = { e.mult } }
         end,
-        calculate = KAS.cond(KAS.last_hand),
+        calculate = KAS.cond(function(card, context) return KAS.contar(context.scoring_hand, function(c) return c:is_face() or c:get_id() == 14 end) == 0 end),
     }
 end
 
@@ -5403,11 +5411,11 @@ do
         loc_txt = {
             name = "Meteorito",
             text = {
-                "{C:chips}+#1#{} fichas por cada carta de",
-                "{C:planet}Planeta{} usada en la partida",
+                "{C:chips}+#1#{} fichas por cada {C:attention}nivel{}",
+                "sumando todas tus manos de póker",
             },
         },
-        config = { extra = { chips = 10 } },
+        config = { extra = { chips = 2 } },
         rarity = 2,
         cost = 6,
         atlas = "cartas3",
@@ -5417,7 +5425,7 @@ do
             local e = card.ability.extra
             return { vars = { e.chips } }
         end,
-        calculate = KAS.dyn(function(card, context, e) local n = (G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.planet) or 0 if n > 0 then return { chips = e.chips * n } end end),
+        calculate = KAS.dyn(function(card, context, e) local n = 0 for _, h in pairs(G.GAME.hands) do n = n + h.level end return { chips = e.chips * n } end),
     }
 end
 
@@ -5428,11 +5436,11 @@ do
         loc_txt = {
             name = "Calavera Bruja",
             text = {
-                "{C:mult}+#1#{} multi por cada carta de",
-                "{C:tarot}Tarot{} usada en la partida",
+                "{C:chips}+#1#{} fichas por cada consumible",
+                "usado en la partida",
             },
         },
-        config = { extra = { mult = 2 } },
+        config = { extra = { chips = 5 } },
         rarity = 1,
         cost = 4,
         atlas = "cartas3",
@@ -5440,9 +5448,9 @@ do
         blueprint_compat = true,
         loc_vars = function(self, info_queue, card)
             local e = card.ability.extra
-            return { vars = { e.mult } }
+            return { vars = { e.chips } }
         end,
-        calculate = KAS.dyn(function(card, context, e) local n = (G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.tarot) or 0 if n > 0 then return { mult = e.mult * n } end end),
+        calculate = KAS.dyn(function(card, context, e) local n = (G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.all) or 0 if n > 0 then return { chips = e.chips * n } end end),
     }
 end
 

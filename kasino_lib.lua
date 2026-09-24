@@ -102,6 +102,25 @@ function KAS.first(c, context) return c == context.scoring_hand[1] end
 
 function KAS.any() return true end
 
+-- Valor de la carta para efectos numericos (figuras 10, As 11)
+function KAS.valor(c)
+    local id = c:get_id()
+    if id == 14 then return 11 elseif id > 10 then return 10 end
+    return id
+end
+
+-- La carta tiene la mejora indicada (p. ej. 'm_stone', 'm_gold')
+function KAS.mejora(clave)
+    return function(c) return c.config and c.config.center and c.config.center.key == clave end
+end
+
+-- La mano que se esta jugando es de uno de estos tipos
+function KAS.jugada(...)
+    local tipos = {}
+    for _, n in ipairs({ ... }) do tipos[n] = true end
+    return function() return tipos[G.GAME.last_hand_played] == true end
+end
+
 ---------------------------------------------------------------------------
 -- Condiciones de mano: function(card, context, e) -> bool
 ---------------------------------------------------------------------------
@@ -166,6 +185,12 @@ function KAS.T.consumable(set)
     end
 end
 
+function KAS.T.any_consumable(context) return context.using_consumeable end
+
+function KAS.T.remove_cards(context)
+    return context.remove_playing_cards and context.removed and #context.removed
+end
+
 function KAS.T.sell_other_joker(context, card)
     return context.selling_card and context.card ~= card and context.card.ability.set == 'Joker'
 end
@@ -188,6 +213,16 @@ function KAS.per_card(pred, seed)
         if context.individual and context.cardarea == G.play and pred(context.other_card, context, e)
             and (not e.odds or suerte(seed, e.odds)) then
             return efecto(e)
+        end
+    end
+end
+
+-- Por cada carta puntuada que cumpla pred, fn(carta, context, e, card) calcula el efecto
+function KAS.per_card_fn(pred, fn)
+    return function(self, card, context)
+        local e = card.ability.extra
+        if context.individual and context.cardarea == G.play and pred(context.other_card, context, e) then
+            return fn(context.other_card, context, e, card)
         end
     end
 end
