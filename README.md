@@ -20,6 +20,36 @@ Añade **225 comodines** con arte pixel:
 | Contador de Cartas | Común | +2 multi por carta descartada esta ronda (se reinicia) |
 | As en la Manga | Poco común | Reactiva cada As jugado |
 
+## Mecánicas nuevas
+
+### Fusión de comodines
+Cada comodín tiene un botón **FUSIONAR** debajo del de vender. Se activa cuando el
+comodín de su **derecha** es de la misma rareza: los dos desaparecen y aparece un
+comodín aleatorio de la rareza siguiente.
+
+| Fusionas | Obtienes |
+|---|---|
+| 2 Comunes | 1 Poco común |
+| 2 Poco comunes | 1 Raro |
+| 2 Raros | 1 Legendario de Kasino |
+
+Los legendarios y los comodines eternos no se pueden fusionar.
+
+### La Fusión (carta de Tarot)
+Selecciona **2 cartas del mismo valor** y úsala: la de la izquierda absorbe a la
+otra. Suma sus fichas, hereda su sello y, si no tenía mejora, gana una al azar.
+Sale en la tienda y en los paquetes arcanos como cualquier Tarot.
+
+### Doble o Nada
+En la **última mano** de cada ronda se ilumina el botón **DOBLE O NADA** junto a
+Jugar y Descartar. Si lo pulsas antes de jugar la mano, al puntuarla se lanza una
+moneda (50 %):
+
+- **¡DOBLE!**: la puntuación de esa mano se multiplica por 2.
+- **¡NADA!**: la mano puntúa 0.
+
+Puedes volver a pulsarlo para cancelar la apuesta antes de jugar.
+
 ## Probabilidades en la tienda
 
 Con los pesos del juego (tienda sin cupones: comodín 20, Tarot 4, Planeta 4) y
@@ -40,7 +70,7 @@ la tienda y en los paquetes de bufón; a cambio, El Alma no los genera.
 
 1. Instala [Lovely Injector](https://github.com/ethangreen-dev/lovely-injector) y
    [Steamodded](https://github.com/Steamodded/smods) (1.0.0 o superior).
-2. Copia esta carpeta entera (con `main.lua`, `kasino_lib.lua`, `comodines.lua`, `Kasino.json` y `assets/`) en la carpeta de mods:
+2. Copia esta carpeta entera (con `main.lua`, `kasino_lib.lua`, `kasino_features.lua`, `comodines.lua`, `Kasino.json` y `assets/`) en la carpeta de mods:
    - Windows: `%AppData%\Balatro\Mods\Kasino`
    - macOS: `~/Library/Application Support/Balatro/Mods/Kasino`
    - Linux (Proton): `~/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/Kasino`
@@ -66,4 +96,13 @@ Tras cambiarlos, regenera el atlas con:
 ```
 pip install pillow
 python3 tools/generar_sprites.py
+```
+
+## Prueba de humo
+
+`tools/prueba_humo.lua` carga el mod con un Balatro simulado, ejecuta todos los
+comodines y comprueba la fusión y el Doble o Nada. No sustituye a probarlo en el juego.
+
+```
+lua5.1 tools/prueba_humo.lua
 ```

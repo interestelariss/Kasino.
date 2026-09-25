@@ -166,6 +166,27 @@ ICONOS = {
     ],
 }
 
+# Iconos de los consumibles (atlas kasino_consumibles)
+ICONOS["fusion"] = [
+    "................",
+    ".KKKKK....KKKKK.",
+    ".KWWWK....KWWWK.",
+    ".KRWWK....KWWBK.",
+    ".KWWWK....KWWWK.",
+    ".KWWRK....KBWWK.",
+    ".KKKKK....KKKKK.",
+    "...KY......YK...",
+    "....KY....YK....",
+    ".....KYYYYK.....",
+    "....KKKKKKKK....",
+    "....KWRWWBWK....",
+    "....KWWYYWWK....",
+    "....KWBWWRWK....",
+    "....KKKKKKKK....",
+    "................",
+]
+CONSUMIBLES = [("fusion", (150, 90, 200))]
+
 # Orden en el atlas (x = columna) y color del marco de cada carta
 ORDEN = [
     ("tragaperras", (200, 60, 60)),
@@ -213,6 +234,16 @@ def main():
         out.parent.mkdir(parents=True, exist_ok=True)
         atlas.resize((atlas.width * escala, atlas.height * escala),
                      Image.NEAREST).save(out)
+        print("escrito", out.relative_to(ROOT))
+
+
+    consumibles = Image.new("RGBA", (W * len(CONSUMIBLES), H), (0, 0, 0, 0))
+    for i, (nombre, marco) in enumerate(CONSUMIBLES):
+        consumibles.paste(carta(nombre, marco), (i * W, 0))
+    for escala in (1, 2):
+        out = ROOT / "assets" / f"{escala}x" / "kasino_consumibles.png"
+        consumibles.resize((consumibles.width * escala, consumibles.height * escala),
+                           Image.NEAREST).save(out)
         print("escrito", out.relative_to(ROOT))
 
 

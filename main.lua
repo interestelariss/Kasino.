@@ -7,6 +7,13 @@ SMODS.Atlas {
     py = 95,
 }
 
+SMODS.Atlas {
+    key = "consumibles",
+    path = "kasino_consumibles.png",
+    px = 71,
+    py = 95,
+}
+
 assert(SMODS.load_file("kasino_lib.lua"))()
 
 -- En el juego base los legendarios solo salen con la carta espectral El Alma.
@@ -298,3 +305,6 @@ SMODS.Joker {
 
 -- Los comodines de las hojas de sprites (generados por tools/generar_comodines.py)
 assert(SMODS.load_file("comodines.lua"))()
+
+-- Mecánicas nuevas: fusión de comodines, carta La Fusión y Doble o Nada
+assert(SMODS.load_file("kasino_features.lua"))()
