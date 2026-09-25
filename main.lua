@@ -308,3 +308,7 @@ assert(SMODS.load_file("comodines.lua"))()
 
 -- Mecánicas nuevas: fusión de comodines, carta La Fusión y Doble o Nada
 assert(SMODS.load_file("kasino_features.lua"))()
+
+-- Cartas Casino (dioses egipcios), mejoras, ciega jefe, paquetes, mazo, cupón y desafíos
+assert(SMODS.load_file("kasino_extras.lua"))()
+assert(SMODS.load_file("kasino_casino.lua"))()

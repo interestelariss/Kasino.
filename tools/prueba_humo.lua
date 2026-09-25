@@ -1,6 +1,6 @@
 --- Prueba de humo del mod con un Balatro/Steamodded simulado (no sustituye a probarlo en el juego).
 -- Carga el mod, ejecuta cada comodin en los contextos habituales y comprueba
--- la logica de fusion y de Doble o Nada.
+-- la logica de fusion, Doble o Nada, cartas Casino, mejoras, ciega jefe y tragaperras.
 -- Uso, desde la raiz del repo: lua5.1 tools/prueba_humo.lua
 
 local fallos = 0
@@ -13,10 +13,17 @@ end
 
 ---------------------------------------------------------------- simulacion
 function HEX() return {} end
-local jokers, consumibles, creados = {}, {}, {}
+local jokers, consumibles, creados, registrados = {}, {}, {}, {}
+local function registrar(tipo) return function(t) registrados[tipo .. ":" .. t.key] = t end end
 SMODS = {
     Atlas = function() end,
     Rarity = function() end,
+    ConsumableType = registrar("tipo"), Enhancement = registrar("mejora"), Blind = registrar("ciega"),
+    Booster = registrar("paquete"), Back = registrar("mazo"), Voucher = registrar("cupon"),
+    Challenge = registrar("desafio"),
+    current_mod = {},
+    find_card = function() return {} end,
+    change_base = function(c, _, valor) c.nuevo_valor = valor end,
     Joker = function(t) jokers[#jokers + 1] = t end,
     Consumable = function(t) consumibles[t.key] = t end,
     load_file = function(p) return loadfile(p) end,
@@ -51,7 +58,11 @@ G = {
         probabilities = { normal = 1 }, dollars = 23, consumeable_buffer = 0,
         current_round = { hands_left = 2, hands_played = 0, discards_left = 2, discards_used = 0 },
         blind = { boss = true, chips = 300 }, chips = 100, last_hand_played = 'Pair', round = 3,
-        hands = { Pair = { level = 2 }, Flush = { level = 1 } },
+        hands = {
+            Pair = { level = 2, played = 3, visible = true, chips = 10, mult = 2 },
+            Flush = { level = 1, played = 0, visible = true, chips = 35, mult = 4 },
+        },
+        bankrupt_at = 0, used_vouchers = {}, modifiers = {},
         consumeable_usage_total = { planet = 2, tarot = 1, all = 3 },
         round_resets = { hands = 4, discards = 3 },
     },
@@ -67,8 +78,13 @@ G = {
     E_MANAGER = { add_event = function(_, ev) if ev.func then ev.func() end end },
     C = setmetatable({ SECONDARY_SET = {}, UI = {} }, { __index = function() return {} end }),
     UIT = { C = 1, R = 2, T = 3, B = 4, ROOT = 0 },
-    FUNCS = {}, UIDEF = { use_and_sell_buttons = function() return { nodes = { { nodes = {} } } } end },
-    P_CENTERS = { c_base = "c_base" }, P_CENTER_POOLS = { Enhanced = { "m_bonus", "m_mult" } },
+    FUNCS = { draw_from_deck_to_hand = function(n) G.robadas = n end },
+    UIDEF = {
+        use_and_sell_buttons = function() return { nodes = { { nodes = {} } } } end,
+        shop = function() return { nodes = { { nodes = { { config = { button = 'reroll_shop' } } } } } } end,
+    },
+    P_CENTERS = { c_base = "c_base", m_kas_marcada = "m_kas_marcada", m_kas_trucada = "m_kas_trucada",
+        j_kas_crupier = { set = 'Joker', rarity = 1 }, e_foil = {} }, P_CENTER_POOLS = { Enhanced = { "m_bonus", "m_mult" } },
     STATES = { SELECTING_HAND = 1 }, STATE = 1,
 }
 for _, j in ipairs(G.jokers.cards) do j.area = G.jokers end
@@ -82,6 +98,9 @@ function ease_dollars() end function ease_discard() end function ease_hands_play
 function card_eval_status_text() end function play_sound() end
 function update_hand_text() end function attention_text() end
 function mod_mult(x) return x end
+function level_up_hand(_, mano, _, n) G.GAME.hands[mano].level = G.GAME.hands[mano].level + (n or 1) end
+Game = { start_run = function(self) self.GAME = G.GAME end }
+function get_new_boss() return 'bl_original' end
 function create_UIBox_buttons() return { nodes = { {}, {} } } end
 
 dofile("main.lua")
@@ -182,6 +201,116 @@ SMODS.calculate_context({ setting_blind = true })
 comprobar(not G.GAME.kas_apuesta, "la apuesta se reinicia al empezar una ciega")
 local botones = create_UIBox_buttons()
 comprobar(#botones.nodes == 3, "se anade el boton APOSTAR")
+
+---------------------------------------------------------------- cartas Casino
+local nombres = { "thoth", "osiris", "isis", "hermes", "ra", "anubis", "set", "shu", "tefnut", "horus",
+    "neftis", "seshat", "maat", "nut", "geb", "iah" }
+comprobar(registrados["tipo:Casino"] ~= nil, "existe el tipo de consumible Casino")
+local vistos = {}
+for _, n in ipairs(nombres) do
+    local c = consumibles[n]
+    comprobar(c ~= nil and c.set == "Casino", "carta Casino " .. n)
+    if c then
+        comprobar(not vistos[c.pos.x .. "," .. c.pos.y], "sprite repetido en " .. n)
+        vistos[c.pos.x .. "," .. c.pos.y] = true
+    end
+end
+local function usar(nombre, seleccion)
+    local c = consumibles[nombre]
+    local card = { ability = copia(c.config or {}), juice_up = function() end }
+    if c.config and c.config.extra then card.ability.extra = copia(c.config.extra) end
+    G.hand.highlighted = seleccion or {}
+    if c.loc_vars then c.loc_vars(c, {}, card) end
+    local ok, puede = pcall(c.can_use, c, card)
+    comprobar(ok, "can_use de " .. nombre .. ": " .. tostring(puede))
+    if ok and puede then
+        local ok2, err = pcall(c.use, c, card)
+        comprobar(ok2, "use de " .. nombre .. ": " .. tostring(err))
+    end
+    return puede
+end
+G.hand.cards = { carta(5, 'Hearts', false), carta(6, 'Clubs', false) }
+G.jokers.cards = { comodin(1) }
+G.jokers.cards[1].set_edition = function(self, e) self.edition = e end
+for _, n in ipairs(nombres) do usar(n, { carta(9, 'Hearts', false) }) end
+comprobar(G.GAME.hands.Pair.level == 3, "Thoth sube la mano mas jugada")
+local marcada = carta(4, 'Spades', false)
+usar("isis", { marcada })
+comprobar(marcada.config.center == "m_kas_marcada", "Isis convierte en Carta Marcada")
+comprobar(G.robadas == 3, "Shu roba 3 cartas")
+comprobar(G.jokers.cards[1].edition and G.jokers.cards[1].edition.foil, "Horus da edicion Laminada")
+comprobar(not usar("osiris"), "Osiris no se puede usar sin haber vendido un comodin")
+SMODS.calculate_context({ selling_card = true, card = { ability = { set = 'Joker' }, config = { center = { key = 'j_kas_crupier' } } } })
+comprobar(usar("osiris") and creados[#creados].key == 'j_kas_crupier', "Osiris revive el ultimo comodin vendido")
+
+---------------------------------------------------------------- mejoras
+local trucada = registrados["mejora:trucada"]
+pseudorandom = function() return 0.1 end
+comprobar(trucada.calculate(trucada, {}, { main_scoring = true, cardarea = G.play }).xmult == 2, "Carta Trucada gana")
+pseudorandom = function() return 0.9 end
+comprobar(trucada.calculate(trucada, {}, { main_scoring = true, cardarea = G.play }).xmult == 0.75, "Carta Trucada pierde")
+comprobar(registrados["mejora:marcada"].config.p_dollars == 1, "Carta Marcada da dinero")
+
+---------------------------------------------------------------- El Crupier
+local function ids(...) local t = {} for _, id in ipairs({ ... }) do t[#t + 1] = carta(id, 'Hearts', id > 10 and id < 14) end return t end
+comprobar(KAS.suma_blackjack(ids(14, 13)) == 21, "As + Rey = 21")
+comprobar(KAS.suma_blackjack(ids(14, 14, 9)) == 21, "As + As + 9 = 21")
+comprobar(KAS.suma_blackjack(ids(13, 12, 5)) == 25, "Rey + Reina + 5 = 25")
+local crupier = registrados["ciega:crupier"]
+comprobar(crupier.debuff_hand(crupier, ids(13, 12, 5)) == true, "El Crupier anula una mano que se pasa de 21")
+comprobar(crupier.debuff_hand(crupier, ids(10, 5, 6)) == false, "El Crupier deja puntuar 21 justos")
+G.GAME.modifiers.kas_crupier_siempre = true
+comprobar(get_new_boss() == 'bl_kas_crupier', "en Noche en el Casino todos los jefes son El Crupier")
+G.GAME.modifiers.kas_crupier_siempre = nil
+comprobar(get_new_boss() == 'bl_original', "sin el desafio el jefe es el normal")
+
+---------------------------------------------------------------- tragaperras
+comprobar(KAS.premio_tragaperras("7", "7", "7") == 20, "tres 7 dan $20")
+comprobar(select(2, KAS.premio_tragaperras("BUFÓN", "BUFÓN", "BUFÓN")) == true, "tres bufones dan un comodin")
+comprobar(KAS.premio_tragaperras("CEREZA", "7", "CEREZA") == 2, "una pareja devuelve $2")
+comprobar(KAS.premio_tragaperras("CALAVERA", "CALAVERA", "7") == 0, "dos calaveras no dan nada")
+comprobar(KAS.premio_tragaperras("7", "$", "CEREZA") == 0, "sin coincidencias no hay premio")
+local tienda = G.UIDEF.shop()
+comprobar(#tienda.nodes[1].nodes == 2 and tienda.nodes[1].nodes[2].config.button == 'kas_girar',
+    "el boton TRAGAPERRAS se anade junto a volver a tirar")
+local gastado = 0
+ease_dollars = function(n) gastado = gastado + n end
+G.shop = {}
+pseudorandom_element = function(t) return t[1] end
+local boton_slot = { config = {} }
+G.FUNCS.kas_puede_girar(boton_slot)
+comprobar(boton_slot.config.button == 'kas_girar', "se puede girar con dinero suficiente")
+G.FUNCS.kas_girar(boton_slot)
+comprobar(gastado == -2 + 20, "girar cuesta $2 y tres 7 pagan $20")
+G.GAME.used_vouchers.v_kas_mesa_vip = true
+comprobar(KAS.coste_tragaperras() == 1 and KAS.prob_apuesta() == 0.6, "Mesa VIP abarata y mejora las apuestas")
+G.GAME.used_vouchers.v_kas_mesa_vip = nil
+
+---------------------------------------------------------------- paquetes, mazo, desafios
+for _, k in ipairs({ "paquete:casino", "paquete:nilo", "mazo:casino", "cupon:mesa_vip",
+    "desafio:todo_o_nada", "desafio:noche_casino", "desafio:faraon" }) do
+    comprobar(registrados[k] ~= nil, "registrado " .. k)
+end
+G.P_CENTERS.j_kas_crupier.rarity = 1
+pseudorandom = function() return 0.1 end
+comprobar(registrados["paquete:casino"].create_card(registrados["paquete:casino"], {}, 1).key == 'j_kas_crupier',
+    "el Paquete Casino da comodines de Kasino")
+local mazo = registrados["mazo:casino"]
+mazo.apply(mazo, {})
+G.GAME.current_round.hands_left = 3
+comprobar(KAS.es_ultima_mano(), "con el Mazo del Casino se puede apostar en cualquier mano")
+G.GAME.modifiers.kas_apuesta_siempre = nil
+G.GAME.modifiers.kas_todo_o_nada = true
+mult = 10
+SMODS.calculate_context({ final_scoring_step = true })
+comprobar(mult ~= 10, "en Todo o Nada todas las manos se apuestan")
+G.GAME.modifiers.kas_todo_o_nada = nil
+G.GAME.modifiers.kas_solo_nilo = true
+Game.start_run(G)
+comprobar(G.GAME.tarot_rate == 0 and G.GAME.casino_rate == 8, "El Faraon solo vende cartas Casino")
+G.localization = { misc = { v_text = {} } }
+SMODS.current_mod.process_loc_text()
+comprobar(G.localization.misc.v_text.ch_c_kas_todo_o_nada ~= nil, "texto de las reglas de los desafios")
 
 if fallos > 0 then
     print(fallos .. " comprobaciones fallidas")

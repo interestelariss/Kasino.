@@ -50,6 +50,64 @@ moneda (50 %):
 
 Puedes volver a pulsarlo para cancelar la apuesta antes de jugar.
 
+### Cartas Casino
+Un tipo de consumible nuevo, como el Tarot, con los dioses egipcios de
+`assets/fuente/cartas_casino.webp`. Salen en la tienda y en el **Paquete del Nilo**.
+
+| Carta | Efecto |
+|---|---|
+| Thoth | Sube 1 nivel tu mano de póker más jugada |
+| Osiris | Revive el último comodín que vendiste |
+| Isis | Convierte hasta 2 cartas seleccionadas en Cartas Marcadas |
+| Hermes Trismegisto | Convierte hasta 2 cartas seleccionadas en Cartas Trucadas |
+| Ra (Atum) | Todas las cartas de tu mano ganan +10 fichas permanentes |
+| Anubis | Destruye 1 carta seleccionada y ganas $ igual a la mitad de su valor |
+| Set (Seth) | Cambia a un valor aleatorio hasta 3 cartas seleccionadas |
+| Shu | Roba 3 cartas extra (durante una ronda) |
+| Tefnut | +1 mano en esta ronda |
+| Horus | Da la edición Laminada a un comodín aleatorio sin edición |
+| Neftis | Crea una carta Espectral |
+| Seshat | $2 por cada tipo de mano de póker jugada en la partida (máx. $20) |
+| Ma'at | 1 entre 2 de ganar $10; si no, pierdes $5 |
+| Nut | Sube 2 niveles una mano de póker aleatoria |
+| Geb | Hasta 3 cartas seleccionadas ganan +20 fichas permanentes |
+| Iah (Jonsu) | Recuperas todos los descartes usados en esta ronda |
+
+### Mejoras de carta
+- **Carta Marcada**: +10 fichas y ganas $1 al puntuar.
+- **Carta Trucada**: al puntuar, 1 entre 2 de X2 multi; si no, X0.75 multi.
+
+### Tragaperras en la tienda
+Botón **TRAGAPERRAS** debajo de "Volver a tirar". Cuesta $2 por tirada:
+
+| Resultado | Premio |
+|---|---|
+| 7 · 7 · 7 | $20 |
+| $ · $ · $ | $10 |
+| BUFÓN ×3 | Un comodín aleatorio ($8 si no tienes hueco) |
+| CEREZA ×3 | $6 |
+| Dos iguales (que no sean calaveras) | $2 |
+
+### Ciega jefe: El Crupier
+Si las cartas jugadas suman más de 21 (figuras 10, As 11 o 1), la mano no puntúa.
+
+### Paquetes
+- **Paquete Casino** ($6): elige 1 de 3 comodines de Kasino.
+- **Paquete del Nilo** ($4): elige 1 de 3 cartas Casino para usar al momento.
+
+### Mazo del Casino
+Puedes apostar Doble o Nada en todas las manos. −1 mano por ronda y $6 extra al empezar.
+
+### Cupón: Mesa VIP ($10)
+Doble o Nada y Ma'at ganan el 60 % de las veces, y la tragaperras cuesta $1.
+
+### Desafíos
+- **Todo o Nada**: todas las manos se juegan a Doble o Nada. Empiezas con Doble o Nada eterno.
+- **Noche en el Casino**: empiezas con $0, Tragaperras, Crupier, Ruleta, La Banca y la Mesa VIP.
+  Todas las ciegas jefe son El Crupier.
+- **El Faraón**: la tienda solo vende cartas Casino como consumibles. Empiezas con Thoth,
+  Ra y Nut, y 3 huecos de consumible.
+
 ## Probabilidades en la tienda
 
 Con los pesos del juego (tienda sin cupones: comodín 20, Tarot 4, Planeta 4) y
@@ -70,7 +128,7 @@ la tienda y en los paquetes de bufón; a cambio, El Alma no los genera.
 
 1. Instala [Lovely Injector](https://github.com/ethangreen-dev/lovely-injector) y
    [Steamodded](https://github.com/Steamodded/smods) (1.0.0 o superior).
-2. Copia esta carpeta entera (con `main.lua`, `kasino_lib.lua`, `kasino_features.lua`, `comodines.lua`, `Kasino.json` y `assets/`) en la carpeta de mods:
+2. Copia esta carpeta entera (con todos los `.lua`, `Kasino.json` y `assets/`) en la carpeta de mods:
    - Windows: `%AppData%\Balatro\Mods\Kasino`
    - macOS: `~/Library/Application Support/Balatro/Mods/Kasino`
    - Linux (Proton): `~/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/Kasino`
@@ -101,7 +159,8 @@ python3 tools/generar_sprites.py
 ## Prueba de humo
 
 `tools/prueba_humo.lua` carga el mod con un Balatro simulado, ejecuta todos los
-comodines y comprueba la fusión y el Doble o Nada. No sustituye a probarlo en el juego.
+comodines y cartas Casino y comprueba la fusión, el Doble o Nada, la tragaperras,
+la ciega jefe, las mejoras, los paquetes, el mazo y los desafíos. No sustituye a probarlo en el juego.
 
 ```
 lua5.1 tools/prueba_humo.lua

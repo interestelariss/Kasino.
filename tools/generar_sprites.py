@@ -185,7 +185,52 @@ ICONOS["fusion"] = [
     "....KKKKKKKK....",
     "................",
 ]
+ICONOS["ficha"] = [
+    "................",
+    ".....KKKKKK.....",
+    "...KKRRWWRRKK...",
+    "..KRRRRWWRRRRK..",
+    ".KWRRKKKKKKRRWK.",
+    ".KWRKYYYYYYKRWK.",
+    "KRRKYYKYYKYYKRRK",
+    "KWWKYKYKYKYYKWWK",
+    "KWWKYYKYKYYYKWWK",
+    "KRRKYYYYYYYYKRRK",
+    ".KWRKYYYYYYKRWK.",
+    ".KWRRKKKKKKRRWK.",
+    "..KRRRRWWRRRRK..",
+    "...KKRRWWRRKK...",
+    ".....KKKKKK.....",
+    "................",
+]
+ICONOS["corona"] = [
+    "................",
+    "................",
+    "..K....KK....K..",
+    ".KYK..KYYK..KYK.",
+    ".KYYK.KYYK.KYYK.",
+    ".KYYYKYYYYKYYYK.",
+    ".KYYYYYRRYYYYYK.",
+    ".KYYYYRRRRYYYYK.",
+    ".KYYYYYRRYYYYYK.",
+    ".KyyyyyyyyyyyyK.",
+    ".KYYBYYYYYYBYYK.",
+    ".KyyyyyyyyyyyyK.",
+    ".KKKKKKKKKKKKKK.",
+    "................",
+    "................",
+    "................",
+]
 CONSUMIBLES = [("fusion", (150, 90, 200))]
+# Paquete Casino, Mazo del Casino y cupon Mesa VIP (atlas kasino_extras, x = 2, 3, 4)
+EXTRAS_ICONOS = [("ficha", (200, 60, 60)), ("ficha", (220, 170, 40)), ("corona", (220, 170, 40))]
+# Cajas de las 16 cartas en assets/fuente/cartas_casino.webp (x0, y0, x1, y1)
+CAJAS_CASINO = (
+    [(x0, 9, x1, 340) for x0, x1 in [(64, 311), (355, 598), (645, 889), (936, 1177), (1224, 1470)]]
+    + [(x0, 353, x1, 668) for x0, x1 in [(64, 311), (355, 598), (645, 889), (936, 1177), (1224, 1470)]]
+    + [(x0, 678, x1, 1007) for x0, x1 in [(22, 252), (287, 512), (545, 761), (780, 1002), (1032, 1252),
+                                          (1283, 1507)]]
+)
 
 # Orden en el atlas (x = columna) y color del marco de cada carta
 ORDEN = [
@@ -247,5 +292,81 @@ def main():
         print("escrito", out.relative_to(ROOT))
 
 
+def mejora_marcada():
+    """Fondo de la Carta Marcada: carta clara con marcas rojas en las esquinas."""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([0, 0, W - 1, H - 1], radius=5, fill=PAL["K"])
+    d.rounded_rectangle([1, 1, W - 2, H - 2], radius=4, fill=(250, 244, 236))
+    d.rounded_rectangle([3, 3, W - 4, H - 4], radius=3, outline=(230, 150, 150), width=1)
+    for x, y in [(5, 5), (W - 10, 5), (5, H - 10), (W - 10, H - 10)]:
+        d.line([x, y, x + 4, y + 4], fill=PAL["R"], width=2)
+        d.line([x + 4, y, x, y + 4], fill=PAL["R"], width=2)
+    return img
+
+
+def mejora_trucada():
+    """Fondo de la Carta Trucada: tapete verde claro con borde dorado y puntos de dado."""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([0, 0, W - 1, H - 1], radius=5, fill=PAL["K"])
+    d.rounded_rectangle([1, 1, W - 2, H - 2], radius=4, fill=(206, 234, 214))
+    d.rounded_rectangle([2, 2, W - 3, H - 3], radius=4, outline=PAL["Y"], width=2)
+    for x, y in [(8, 8), (W - 12, 8), (8, H - 12), (W - 12, H - 12), (W // 2 - 2, 8), (W // 2 - 2, H - 12)]:
+        d.rectangle([x, y, x + 3, y + 3], fill=PAL["g"])
+    return img
+
+
+def ficha_ciega(escala):
+    """Ficha de la ciega jefe El Crupier: 21 fotogramas de 34x34 (iguales)."""
+    t = 34 * escala
+    ficha = Image.new("RGBA", (t, t), (0, 0, 0, 0))
+    d = ImageDraw.Draw(ficha)
+    d.ellipse([1, 1, t - 2, t - 2], fill=PAL["K"])
+    d.ellipse([2 * escala, 2 * escala, t - 3 * escala, t - 3 * escala], fill=(30, 110, 70))
+    for i in range(8):
+        import math
+        a = i * math.pi / 4
+        cx, cy = t / 2 + math.cos(a) * t * 0.38, t / 2 + math.sin(a) * t * 0.38
+        r = 2.5 * escala
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=PAL["W"])
+    d.ellipse([9 * escala, 9 * escala, t - 10 * escala, t - 10 * escala], fill=PAL["K"])
+    # "21" en pixeles
+    digitos = ["KKK.K", "..K.K", "KKK.K", "K...K", "KKK.K"]
+    p = escala
+    ox, oy = t // 2 - 3 * p, t // 2 - 3 * p
+    for y, fila in enumerate(digitos):
+        for x, c in enumerate(fila):
+            if c == "K":
+                d.rectangle([ox + x * 1.3 * p, oy + y * 1.3 * p, ox + (x + 1) * 1.3 * p - 1, oy + (y + 1) * 1.3 * p - 1],
+                            fill=PAL["Y"])
+    atlas = Image.new("RGBA", (t * 21, t), (0, 0, 0, 0))
+    for i in range(21):
+        atlas.paste(ficha, (i * t, 0))
+    return atlas
+
+
+def generar_extras():
+    extras = Image.new("RGBA", (W * 5, H), (0, 0, 0, 0))
+    extras.paste(mejora_marcada(), (0, 0))
+    extras.paste(mejora_trucada(), (W, 0))
+    for i, (nombre, marco) in enumerate(EXTRAS_ICONOS):
+        extras.paste(carta(nombre, marco), ((i + 2) * W, 0))
+    fuente = Image.open(ROOT / "assets" / "fuente" / "cartas_casino.webp").convert("RGB")
+    for escala in (1, 2):
+        out = ROOT / "assets" / f"{escala}x"
+        extras.resize((extras.width * escala, extras.height * escala), Image.NEAREST).save(out / "kasino_extras.png")
+        ficha_ciega(escala).save(out / "kasino_ciegas.png")
+        casino = Image.new("RGBA", (W * escala * 8, H * escala * 2), (0, 0, 0, 0))
+        for i, caja in enumerate(CAJAS_CASINO):
+            c = fuente.crop(caja).resize((W * escala, H * escala), Image.LANCZOS).convert("RGBA")
+            mascara = Image.new("L", c.size, 0)
+            ImageDraw.Draw(mascara).rounded_rectangle([0, 0, c.width - 1, c.height - 1], radius=4 * escala, fill=255)
+            casino.paste(c, ((i % 8) * W * escala, (i // 8) * H * escala), mascara)
+        casino.save(out / "kasino_casino.png")
+        print("escrito extras, ciegas y cartas casino en", out.relative_to(ROOT))
+
+
 if __name__ == "__main__":
     main()
+    generar_extras()

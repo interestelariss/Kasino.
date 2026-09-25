@@ -160,8 +160,10 @@ SMODS.Consumable {
 -- 3. Doble o Nada en la ultima mano
 ---------------------------------------------------------------------------
 
+-- Se puede apostar en la ultima mano (o en todas con el Mazo del Casino)
 function KAS.es_ultima_mano()
-    return G.GAME and G.GAME.current_round and G.GAME.current_round.hands_left == 1
+    return G.GAME and G.GAME.current_round
+        and (G.GAME.current_round.hands_left == 1 or G.GAME.modifiers.kas_apuesta_siempre)
 end
 
 G.FUNCS.kas_puede_apostar = function(e)
@@ -182,9 +184,10 @@ end
 
 -- Se llama en el ultimo paso de puntuacion: multiplica la mano por 2 o por 0
 function KAS.resolver_apuesta()
-    if not G.GAME.kas_apuesta then return end
+    -- En el desafio Todo o Nada todas las manos van a Doble o Nada
+    if not (G.GAME.kas_apuesta or G.GAME.modifiers.kas_todo_o_nada) then return end
     G.GAME.kas_apuesta = false
-    local gana = pseudorandom('kas_apuesta') < 0.5
+    local gana = pseudorandom('kas_apuesta') < KAS.prob_apuesta()
     mult = mod_mult(mult * (gana and 2 or 0))
     update_hand_text({ delay = 0 }, { mult = mult })
     G.E_MANAGER:add_event(Event({
@@ -205,6 +208,10 @@ function SMODS.calculate_context(context, ...)
     local r = calculate_context_original(context, ...)
     if context.final_scoring_step then KAS.resolver_apuesta() end
     if context.setting_blind then G.GAME.kas_apuesta = false end
+    -- Osiris revive el ultimo comodin vendido
+    if context.selling_card and context.card and context.card.ability.set == 'Joker' then
+        G.GAME.kas_ultimo_vendido = context.card.config.center.key
+    end
     return r
 end
 
