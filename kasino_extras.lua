@@ -209,7 +209,7 @@ end
 ---------------------------------------------------------------------------
 
 KAS.SIMBOLOS = { "7", "$", "BUFÓN", "CEREZA", "CALAVERA" }
-KAS.ui.tragaperras = "$2"
+KAS.ui.tragaperras = "TRAGAPERRAS $2"
 
 function KAS.coste_tragaperras()
     return KAS.vip() and 1 or 2
@@ -232,7 +232,7 @@ end
 
 G.FUNCS.kas_puede_girar = function(e)
     local coste = KAS.coste_tragaperras()
-    KAS.ui.tragaperras = "$" .. coste
+    KAS.ui.tragaperras = "TRAGAPERRAS $" .. coste
     if not KAS.girando and G.GAME.dollars - G.GAME.bankrupt_at >= coste then
         e.config.colour = G.C.RED
         e.config.button = 'kas_girar'
@@ -293,31 +293,32 @@ function KAS.buscar_nodo(nodo, pred)
     end
 end
 
+-- Boton compacto de una sola linea: la columna de la tienda no debe crecer,
+-- porque si no la tienda entera se estira y la fila de paquetes se sale de la pantalla
 local function boton_tragaperras()
     return {
         n = G.UIT.R,
         config = {
-            align = "cm", minw = 2.8, minh = 1.1, r = 0.15, colour = G.C.RED, hover = true, shadow = true,
+            align = "cm", minw = 2.8, minh = 0.55, r = 0.1, colour = G.C.RED, hover = true, shadow = true,
             button = 'kas_girar', func = 'kas_puede_girar',
         },
         nodes = {
-            { n = G.UIT.R, config = { align = "cm", padding = 0.03 }, nodes = {
-                { n = G.UIT.T, config = { text = "TRAGAPERRAS", scale = 0.4, colour = G.C.WHITE, shadow = true } },
-            } },
-            { n = G.UIT.R, config = { align = "cm" }, nodes = {
-                { n = G.UIT.T, config = { ref_table = KAS.ui, ref_value = 'tragaperras', scale = 0.55,
-                    colour = G.C.WHITE, shadow = true } },
-            } },
+            { n = G.UIT.T, config = { ref_table = KAS.ui, ref_value = 'tragaperras', scale = 0.4,
+                colour = G.C.WHITE, shadow = true } },
         },
     }
 end
 
--- Anade el boton TRAGAPERRAS debajo del de volver a tirar la tienda
+-- Anade el boton TRAGAPERRAS debajo del de volver a tirar la tienda, y reduce
+-- la altura de este para que la columna mida lo mismo que en el juego base
 local tienda_original = G.UIDEF.shop
 function G.UIDEF.shop()
     local t = tienda_original()
     local padre, pos = KAS.buscar_nodo(t, function(n) return n.config and n.config.button == 'reroll_shop' end)
-    if padre then table.insert(padre.nodes, pos + 1, boton_tragaperras()) end
+    if padre then
+        padre.nodes[pos].config.minh = 1
+        table.insert(padre.nodes, pos + 1, boton_tragaperras())
+    end
     return t
 end
 

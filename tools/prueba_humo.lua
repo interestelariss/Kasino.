@@ -273,6 +273,7 @@ comprobar(KAS.premio_tragaperras("7", "$", "CEREZA") == 0, "sin coincidencias no
 local tienda = G.UIDEF.shop()
 comprobar(#tienda.nodes[1].nodes == 2 and tienda.nodes[1].nodes[2].config.button == 'kas_girar',
     "el boton TRAGAPERRAS se anade junto a volver a tirar")
+comprobar(tienda.nodes[1].nodes[1].config.minh == 1, "el boton de volver a tirar se compacta")
 local gastado = 0
 ease_dollars = function(n) gastado = gastado + n end
 G.shop = {}
