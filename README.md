@@ -87,15 +87,21 @@ Un tipo de consumible nuevo, como el Tarot, con los dioses egipcios de
 - **Carta Trucada**: al puntuar, 1 entre 2 de X2 multi; si no, X0.75 multi.
 
 ### Tragaperras en la tienda
-Botón **TRAGAPERRAS** debajo de "Volver a tirar". Cuesta $2 por tirada:
+Debajo de "Volver a tirar" está la fila **[−] TRAGAPERRAS $2 [+]**. Con − y + eliges
+cuánto apuestas por tirada: **$1, $2, $5, $10 o $25**. El premio es un multiplicador
+de tu apuesta:
 
-| Resultado | Premio |
-|---|---|
-| 7 · 7 · 7 | $20 |
-| $ · $ · $ | $10 |
-| BUFÓN ×3 | Un comodín aleatorio ($8 si no tienes hueco) |
-| CEREZA ×3 | $6 |
-| Dos iguales (que no sean calaveras) | $2 |
+| Resultado | Premio | Con $10 apostados |
+|---|---|---|
+| 7 · 7 · 7 (jackpot) | ×15 | $150 |
+| $ · $ · $ | ×8 | $80 |
+| BUFÓN ×3 | Un comodín aleatorio (×6 si no tienes hueco) | comodín o $60 |
+| CEREZA ×3 | ×5 | $50 |
+| Dos 7 | ×2 | $20 |
+| Otra pareja (que no sean calaveras) | ×1, recuperas la apuesta | $10 |
+| Nada o calaveras | ×0 | $0 |
+
+De media la máquina devuelve el 75 % de lo apostado (el 94 % con la Mesa VIP).
 
 ### Ciega jefe: El Crupier
 Si las cartas jugadas suman más de 21 (figuras 10, As 11 o 1), la mano no puntúa.
@@ -108,7 +114,7 @@ Si las cartas jugadas suman más de 21 (figuras 10, As 11 o 1), la mano no punt�
 Puedes apostar Doble o Nada en todas las manos. −1 mano por ronda y $6 extra al empezar.
 
 ### Cupón: Mesa VIP ($10)
-Doble o Nada y Ma'at ganan el 60 % de las veces, y la tragaperras cuesta $1.
+Doble o Nada y Ma'at ganan el 60 % de las veces, y la tragaperras paga un 25 % más.
 
 ### Desafíos
 - **Todo o Nada**: todas las manos se juegan a Doble o Nada. Empiezas con Doble o Nada eterno.

@@ -274,26 +274,57 @@ G.GAME.modifiers.kas_crupier_siempre = nil
 comprobar(get_new_boss() == 'bl_original', "sin el desafio el jefe es el normal")
 
 ---------------------------------------------------------------- tragaperras
-comprobar(KAS.premio_tragaperras("7", "7", "7") == 20, "tres 7 dan $20")
+comprobar(KAS.premio_tragaperras("7", "7", "7") == 15, "tres 7 pagan x15")
+comprobar(KAS.premio_tragaperras("$", "$", "$") == 8, "tres $ pagan x8")
+comprobar(KAS.premio_tragaperras("CEREZA", "CEREZA", "CEREZA") == 5, "tres cerezas pagan x5")
 comprobar(select(2, KAS.premio_tragaperras("BUFÓN", "BUFÓN", "BUFÓN")) == true, "tres bufones dan un comodin")
-comprobar(KAS.premio_tragaperras("CEREZA", "7", "CEREZA") == 2, "una pareja devuelve $2")
+comprobar(KAS.premio_tragaperras("7", "CEREZA", "7") == 2, "dos 7 pagan x2")
+comprobar(KAS.premio_tragaperras("CEREZA", "7", "CEREZA") == 1, "otra pareja devuelve la apuesta")
 comprobar(KAS.premio_tragaperras("CALAVERA", "CALAVERA", "7") == 0, "dos calaveras no dan nada")
+comprobar(KAS.premio_tragaperras("CALAVERA", "CALAVERA", "CALAVERA") == 0, "tres calaveras no dan nada")
 comprobar(KAS.premio_tragaperras("7", "$", "CEREZA") == 0, "sin coincidencias no hay premio")
+-- Retorno medio: debe estar por debajo del 100 % (la casa gana)
+local total, n = 0, 0
+for _, a in ipairs(KAS.SIMBOLOS) do for _, b in ipairs(KAS.SIMBOLOS) do for _, c in ipairs(KAS.SIMBOLOS) do
+    local m, comodin = KAS.premio_tragaperras(a, b, c)
+    total, n = total + (comodin and 6 or m), n + 1
+end end end
+comprobar(total / n > 0.6 and total / n < 0.9, ("retorno medio razonable (%.2f)"):format(total / n))
+
+G.GAME.kas_apuesta_slot = nil
+comprobar(KAS.apuesta_tragaperras() == 2, "la apuesta empieza en $2")
+KAS.cambiar_apuesta_tragaperras(1)
+comprobar(KAS.apuesta_tragaperras() == 5, "+ sube la apuesta a $5")
+for _ = 1, 10 do KAS.cambiar_apuesta_tragaperras(1) end
+comprobar(KAS.apuesta_tragaperras() == 25, "la apuesta maxima es $25")
+local flecha_mas = { config = { ref_table = { paso = 1 } } }
+G.FUNCS.kas_puede_cambiar_apuesta(flecha_mas)
+comprobar(flecha_mas.config.button == nil, "no se puede subir por encima del maximo")
+for _ = 1, 10 do KAS.cambiar_apuesta_tragaperras(-1) end
+comprobar(KAS.apuesta_tragaperras() == 1, "la apuesta minima es $1")
+
 local tienda = G.UIDEF.shop()
-comprobar(#tienda.nodes[1].nodes == 2 and tienda.nodes[1].nodes[2].config.button == 'kas_girar',
-    "el boton TRAGAPERRAS se anade junto a volver a tirar")
+local fila_slot = tienda.nodes[1].nodes[2]
+comprobar(#tienda.nodes[1].nodes == 2 and fila_slot.nodes[3].config.button == 'kas_girar'
+    and fila_slot.nodes[1].config.button == 'kas_cambiar_apuesta', "botones - TRAGAPERRAS + junto a volver a tirar")
 comprobar(tienda.nodes[1].nodes[1].config.minh == 1, "el boton de volver a tirar se compacta")
+
 local gastado = 0
 ease_dollars = function(n) gastado = gastado + n end
 G.shop = {}
 pseudorandom_element = function(t) return t[1] end
+G.GAME.kas_apuesta_slot = 4
 local boton_slot = { config = {} }
 G.FUNCS.kas_puede_girar(boton_slot)
 comprobar(boton_slot.config.button == 'kas_girar', "se puede girar con dinero suficiente")
 G.FUNCS.kas_girar(boton_slot)
-comprobar(gastado == -2 + 20, "girar cuesta $2 y tres 7 pagan $20")
+comprobar(gastado == -10 + 150, "apostar $10 y sacar tres 7 paga $150")
+G.GAME.dollars = 3
+G.FUNCS.kas_puede_girar(boton_slot)
+comprobar(boton_slot.config.button == nil, "no se puede apostar mas dinero del que tienes")
+G.GAME.dollars = 23
 G.GAME.used_vouchers.v_kas_mesa_vip = true
-comprobar(KAS.coste_tragaperras() == 1 and KAS.prob_apuesta() == 0.6, "Mesa VIP abarata y mejora las apuestas")
+comprobar(KAS.dinero_tragaperras(8, 5) == 50 and KAS.prob_apuesta() == 0.6, "Mesa VIP paga un 25 % mas y mejora las apuestas")
 G.GAME.used_vouchers.v_kas_mesa_vip = nil
 
 ---------------------------------------------------------------- paquetes, mazo, desafios

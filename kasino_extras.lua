@@ -188,7 +188,7 @@ SMODS.Voucher {
         text = {
             "{C:attention}Doble o Nada{} y {C:attention}Ma'at{} ganan",
             "el {C:green}60%{} de las veces",
-            "La {C:attention}Tragaperras{} cuesta {C:money}$1{}",
+            "La {C:attention}Tragaperras{} paga un {C:money}25%{} más",
         },
     },
     atlas = "extras", pos = { x = 4, y = 0 },
@@ -209,31 +209,53 @@ end
 ---------------------------------------------------------------------------
 
 KAS.SIMBOLOS = { "7", "$", "BUFÓN", "CEREZA", "CALAVERA" }
+KAS.APUESTAS_TRAGAPERRAS = { 1, 2, 5, 10, 25 }
 KAS.ui.tragaperras = "TRAGAPERRAS $2"
 
-function KAS.coste_tragaperras()
-    return KAS.vip() and 1 or 2
+-- Premios en multiplicadores de la apuesta. La maquina devuelve de media
+-- alrededor del 75 % de lo apostado (la casa siempre gana).
+KAS.PREMIOS_TRAGAPERRAS = {
+    triple = { ["7"] = 15, ["$"] = 8, ["CEREZA"] = 5, ["BUFÓN"] = 6 },
+    pareja_7 = 2,
+    pareja = 1,
+}
+
+-- Apuesta elegida (se guarda en la partida)
+function KAS.apuesta_tragaperras()
+    local i = G.GAME.kas_apuesta_slot or 2
+    return KAS.APUESTAS_TRAGAPERRAS[i]
 end
 
--- Premio de una tirada: devuelve dinero y si toca un comodin
+function KAS.cambiar_apuesta_tragaperras(paso)
+    local i = (G.GAME.kas_apuesta_slot or 2) + paso
+    G.GAME.kas_apuesta_slot = math.max(1, math.min(#KAS.APUESTAS_TRAGAPERRAS, i))
+    play_sound('button', 1 + 0.05 * G.GAME.kas_apuesta_slot)
+end
+
+-- Multiplicador de una tirada y si toca un comodin (tres BUFÓN)
 function KAS.premio_tragaperras(a, b, c)
+    local p = KAS.PREMIOS_TRAGAPERRAS
     if a == b and b == c then
-        if a == "7" then return 20 end
-        if a == "$" then return 10 end
-        if a == "BUFÓN" then return 0, true end
-        if a == "CEREZA" then return 6 end
-        return 0
+        return p.triple[a] or 0, a == "BUFÓN"
     end
-    if (a == b and a ~= "CALAVERA") or (b == c and b ~= "CALAVERA") or (a == c and a ~= "CALAVERA") then
-        return 2
-    end
+    local pareja
+    if a == b or a == c then pareja = a elseif b == c then pareja = b end
+    if pareja == "7" then return p.pareja_7 end
+    if pareja and pareja ~= "CALAVERA" then return p.pareja end
     return 0
 end
 
+-- Dinero que se gana con un multiplicador y una apuesta (Mesa VIP: +25 %)
+function KAS.dinero_tragaperras(mult, apuesta)
+    local dinero = mult * apuesta
+    if KAS.vip() then dinero = dinero * 1.25 end
+    return math.floor(dinero)
+end
+
 G.FUNCS.kas_puede_girar = function(e)
-    local coste = KAS.coste_tragaperras()
-    KAS.ui.tragaperras = "TRAGAPERRAS $" .. coste
-    if not KAS.girando and G.GAME.dollars - G.GAME.bankrupt_at >= coste then
+    local apuesta = KAS.apuesta_tragaperras()
+    KAS.ui.tragaperras = "TRAGAPERRAS $" .. apuesta
+    if not KAS.girando and G.GAME.dollars - G.GAME.bankrupt_at >= apuesta then
         e.config.colour = G.C.RED
         e.config.button = 'kas_girar'
     else
@@ -242,15 +264,35 @@ G.FUNCS.kas_puede_girar = function(e)
     end
 end
 
+G.FUNCS.kas_puede_cambiar_apuesta = function(e)
+    local i = G.GAME.kas_apuesta_slot or 2
+    local paso = e.config.ref_table.paso
+    if not KAS.girando and KAS.APUESTAS_TRAGAPERRAS[i + paso] then
+        e.config.colour = G.C.ORANGE
+        e.config.button = 'kas_cambiar_apuesta'
+    else
+        e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+        e.config.button = nil
+    end
+end
+
+G.FUNCS.kas_cambiar_apuesta = function(e)
+    KAS.cambiar_apuesta_tragaperras(e.config.ref_table.paso)
+end
+
 G.FUNCS.kas_girar = function(e)
     KAS.girando = true
-    ease_dollars(-KAS.coste_tragaperras())
+    local apuesta = KAS.apuesta_tragaperras()
+    ease_dollars(-apuesta)
     local tirada = {}
     for i = 1, 3 do tirada[i] = pseudorandom_element(KAS.SIMBOLOS, pseudoseed('kas_tragaperras' .. i)) end
-    local dinero, comodin = KAS.premio_tragaperras(tirada[1], tirada[2], tirada[3])
+    local mult, comodin = KAS.premio_tragaperras(tirada[1], tirada[2], tirada[3])
     if comodin and #G.jokers.cards >= G.jokers.config.card_limit then
-        comodin, dinero = false, 8
+        comodin = false
+    elseif comodin then
+        mult = 0
     end
+    local dinero = KAS.dinero_tragaperras(mult, apuesta)
     play_sound('coin3')
     G.E_MANAGER:add_event(Event({
         trigger = 'after', delay = 0.2,
@@ -271,9 +313,11 @@ G.FUNCS.kas_girar = function(e)
                 texto, color = "¡COMODÍN!", G.C.PURPLE
             elseif dinero > 0 then
                 ease_dollars(dinero)
-                texto, color = "¡$" .. dinero .. "!", G.C.MONEY
+                texto = "¡$" .. dinero .. "!"
+                if mult >= 15 then texto = "¡JACKPOT! $" .. dinero end
+                color = G.C.MONEY
             end
-            play_sound(dinero >= 10 and 'multhit2' or 'coin1')
+            play_sound(mult >= 5 and 'multhit2' or 'coin1')
             attention_text({
                 text = texto, scale = 1, hold = 1.5, major = G.shop, align = 'tm',
                 offset = { x = 0, y = -0.2 }, backdrop_colour = color, silent = true,
@@ -296,15 +340,31 @@ end
 -- Boton compacto de una sola linea: la columna de la tienda no debe crecer,
 -- porque si no la tienda entera se estira y la fila de paquetes se sale de la pantalla
 local function boton_tragaperras()
+    local function flecha(texto, paso)
+        return { n = G.UIT.C, config = {
+            align = "cm", minw = 0.45, minh = 0.55, r = 0.1, colour = G.C.ORANGE, hover = true, shadow = true,
+            button = 'kas_cambiar_apuesta', func = 'kas_puede_cambiar_apuesta', ref_table = { paso = paso },
+        }, nodes = {
+            { n = G.UIT.T, config = { text = texto, scale = 0.45, colour = G.C.WHITE, shadow = true } },
+        } }
+    end
     return {
-        n = G.UIT.R,
-        config = {
-            align = "cm", minw = 2.8, minh = 0.55, r = 0.1, colour = G.C.RED, hover = true, shadow = true,
-            button = 'kas_girar', func = 'kas_puede_girar',
-        },
-        nodes = {
-            { n = G.UIT.T, config = { ref_table = KAS.ui, ref_value = 'tragaperras', scale = 0.4,
-                colour = G.C.WHITE, shadow = true } },
+        n = G.UIT.R, config = { align = "cm", padding = 0 }, nodes = {
+            flecha("-", -1),
+            { n = G.UIT.C, config = { minw = 0.05 } },
+            {
+                n = G.UIT.C,
+                config = {
+                    align = "cm", minw = 1.8, minh = 0.55, r = 0.1, colour = G.C.RED, hover = true, shadow = true,
+                    button = 'kas_girar', func = 'kas_puede_girar',
+                },
+                nodes = {
+                    { n = G.UIT.T, config = { ref_table = KAS.ui, ref_value = 'tragaperras', scale = 0.33,
+                        colour = G.C.WHITE, shadow = true } },
+                },
+            },
+            { n = G.UIT.C, config = { minw = 0.05 } },
+            flecha("+", 1),
         },
     }
 end
