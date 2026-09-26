@@ -315,3 +315,6 @@ assert(SMODS.load_file("kasino_casino.lua"))()
 
 -- Panel de admin para probar el mod (Ctrl + K o Opciones -> ADMIN KASINO)
 assert(SMODS.load_file("kasino_admin.lua"))()
+
+-- Menú de fusiones (Ctrl + F o Opciones -> FUSIONES)
+assert(SMODS.load_file("kasino_fusiones.lua"))()

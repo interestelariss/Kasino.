@@ -35,6 +35,15 @@ comodín aleatorio de la rareza siguiente.
 
 Los legendarios y los comodines eternos no se pueden fusionar.
 
+#### Menú de fusiones
+Durante una partida, pulsa **Ctrl + F** o ve a **Opciones → FUSIONES**. Muestra:
+
+- Las reglas de fusión.
+- Tus comodines, uno por línea, con los otros comodines tuyos con los que puede
+  fusionarse y qué rareza saldría. En **verde** salen las parejas que ya están
+  juntas y se pueden fusionar ahora mismo.
+- Las cartas de tu mano que tienen el mismo valor, para usar La Fusión.
+
 ### La Fusión (carta de Tarot)
 Selecciona **2 cartas del mismo valor** y úsala: la de la izquierda absorbe a la
 otra. Suma sus fichas, hereda su sello y, si no tenía mejora, gana una al azar.

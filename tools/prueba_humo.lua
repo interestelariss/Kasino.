@@ -354,10 +354,30 @@ local normal = { area = { config = { collection = true } }, config = { center = 
 Card.click(normal)
 comprobar(normal.clic_normal, "fuera del modo admin la coleccion funciona normal")
 local opciones = create_UIBox_options()
-comprobar(#opciones.nodes == 2 and opciones.nodes[2].nodes[1].config.button == 'kas_admin_abrir',
-    "boton ADMIN KASINO en Opciones")
+comprobar(#opciones.nodes == 3 and opciones.nodes[2].nodes[1].config.button == 'kas_fusiones_abrir'
+    and opciones.nodes[3].nodes[1].config.button == 'kas_admin_abrir', "botones FUSIONES y ADMIN KASINO en Opciones")
 G.STAGE = 1
 comprobar(#create_UIBox_options().nodes == 1, "fuera de una partida no sale el boton de admin")
+G.STAGE = 2
+
+---------------------------------------------------------------- menu de fusiones
+localize = function(t) if type(t) == 'table' then return ({ j_a = "Uno", j_b = "Dos", j_c = "Tres", j_d = "Cuatro" })[t.key] end return "x" end
+local function j(clave, rareza, eterno)
+    return { config = { center = { key = clave, rarity = rareza } }, ability = { set = 'Joker', eternal = eterno } }
+end
+G.jokers.cards = { j('j_a', 1), j('j_b', 1), j('j_c', 2), j('j_d', 1, true) }
+for _, x in ipairs(G.jokers.cards) do x.area = G.jokers end
+G.hand.cards = { carta(9, 'Hearts', false), carta(9, 'Spades', false), carta(13, 'Clubs', true) }
+local info, repetidos = KAS.info_fusiones()
+comprobar(info[1].nombre == "Uno" and info[1].con[1] == "Dos" and #info[1].con == 1, "Uno se puede fusionar con Dos")
+comprobar(info[1].lista and info[1].da == "Poco común", "Uno + Dos es una pareja lista y da un Poco comun")
+comprobar(not info[2].lista, "Dos no tiene pareja a su derecha")
+comprobar(#info[3].con == 0, "Tres no tiene otro Poco comun")
+comprobar(not info[4].fusionable, "un comodin eterno no se fusiona")
+comprobar(repetidos[1] == "9 ×2" and #repetidos == 1, "detecta cartas repetidas para La Fusion")
+comprobar(registrados["atajo:fusiones"] ~= nil, "atajo Ctrl + F registrado")
+registrados["atajo:fusiones"].action()
+comprobar(G.menu ~= nil and #G.menu.nodes == 5, "Ctrl + F abre el menu de fusiones")
 
 if fallos > 0 then
     print(fallos .. " comprobaciones fallidas")
