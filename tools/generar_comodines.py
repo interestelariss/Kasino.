@@ -5,7 +5,7 @@ Uso: python3 tools/generar_comodines.py   (requiere Pillow)
 import re
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 import comodines
 import comodines_hoja2
@@ -68,22 +68,30 @@ def recortar_cartas(img, hoja):
     return cajas
 
 
-def sprite(img, caja, escala):
-    w, h = W * escala, H * escala
+def sprite(img, caja):
+    """Carta a 1x (71x95) como pixel art limpio.
+
+    Las hojas son imagenes pequenas; ampliarlas con suavizado las emborrona.
+    Se reduce a 1x con un poco de nitidez y el 2x se obtiene duplicando
+    pixeles (NEAREST), igual que los sprites del juego base.
+    """
     carta = img.crop(caja)
     # Escala uniforme hasta cubrir el hueco y recorta el sobrante centrado
-    f = max(w / carta.width, h / carta.height)
+    f = max(W / carta.width, H / carta.height)
     carta = carta.resize((round(carta.width * f), round(carta.height * f)), Image.LANCZOS)
-    x = (carta.width - w) // 2
-    y = (carta.height - h) // 2
-    carta = carta.crop((x, y, x + w, y + h)).convert("RGBA")
+    x = (carta.width - W) // 2
+    y = (carta.height - H) // 2
+    carta = carta.crop((x, y, x + W, y + H))
+    carta = carta.filter(ImageFilter.UnsharpMask(radius=1, percent=80, threshold=2))
+    carta = ImageEnhance.Contrast(carta).enhance(1.08)
+    carta = ImageEnhance.Color(carta).enhance(1.12)
+    carta = carta.convert("RGBA")
     # Esquinas redondeadas y borde oscuro como las cartas de Balatro
-    mascara = Image.new("L", (w, h), 0)
-    ImageDraw.Draw(mascara).rounded_rectangle([0, 0, w - 1, h - 1], radius=5 * escala, fill=255)
-    fondo = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    mascara = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(mascara).rounded_rectangle([0, 0, W - 1, H - 1], radius=5, fill=255)
+    fondo = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     fondo.paste(carta, (0, 0), mascara)
-    ImageDraw.Draw(fondo).rounded_rectangle([0, 0, w - 1, h - 1], radius=5 * escala,
-                                            outline=(30, 32, 40, 255), width=escala)
+    ImageDraw.Draw(fondo).rounded_rectangle([0, 0, W - 1, H - 1], radius=5, outline=(30, 32, 40, 255), width=1)
     return fondo
 
 
@@ -91,12 +99,12 @@ def generar_atlas(hoja):
     img = Image.open(ROOT / "assets" / "fuente" / hoja["fuente"]).convert("RGB")
     cajas = recortar_cartas(img, hoja)
     cols, filas = hoja["cols"], hoja["filas"]
+    atlas = Image.new("RGBA", (W * cols, H * filas), (0, 0, 0, 0))
+    for i, caja in enumerate(cajas):
+        atlas.paste(sprite(img, caja), ((i % cols) * W, (i // cols) * H))
     for escala in (1, 2):
-        atlas = Image.new("RGBA", (W * escala * cols, H * escala * filas), (0, 0, 0, 0))
-        for i, caja in enumerate(cajas):
-            atlas.paste(sprite(img, caja, escala), ((i % cols) * W * escala, (i // cols) * H * escala))
         out = ROOT / "assets" / f"{escala}x" / hoja["png"]
-        atlas.save(out)
+        atlas.resize((atlas.width * escala, atlas.height * escala), Image.NEAREST).save(out)
         print("escrito", out.relative_to(ROOT))
 
 
