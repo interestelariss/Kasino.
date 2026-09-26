@@ -312,3 +312,6 @@ assert(SMODS.load_file("kasino_features.lua"))()
 -- Cartas Casino (dioses egipcios), mejoras, ciega jefe, paquetes, mazo, cupón y desafíos
 assert(SMODS.load_file("kasino_extras.lua"))()
 assert(SMODS.load_file("kasino_casino.lua"))()
+
+-- Panel de admin para probar el mod (Ctrl + K o Opciones -> ADMIN KASINO)
+assert(SMODS.load_file("kasino_admin.lua"))()

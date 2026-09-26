@@ -108,6 +108,16 @@ Doble o Nada y Ma'at ganan el 60 % de las veces, y la tragaperras cuesta $1.
 - **El Faraón**: la tienda solo vende cartas Casino como consumibles. Empiezas con Thoth,
   Ra y Nut, y 3 huecos de consumible.
 
+### Panel de admin
+Para probar el mod. Durante una partida, pulsa **Ctrl + K** o ve a
+**Opciones → ADMIN KASINO**. Desde el panel puedes:
+
+- Darte o quitarte dinero (−$100, −$10, −$1, +$1, +$10, +$100).
+- Darte +1 mano, +1 descarte o +1 hueco de comodín, y quitar todos tus comodines.
+- Abrir la colección en **modo admin** (Comodines, Tarot, Planetas, Espectrales,
+  otros consumibles como las cartas Casino, y Cupones). Mientras estás en ese modo,
+  **pulsar cualquier carta te la da**, sea del juego base o del mod. Los cupones se activan.
+
 ## Probabilidades en la tienda
 
 Con los pesos del juego (tienda sin cupones: comodín 20, Tarot 4, Planeta 4) y

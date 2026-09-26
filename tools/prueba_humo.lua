@@ -22,6 +22,7 @@ SMODS = {
     Booster = registrar("paquete"), Back = registrar("mazo"), Voucher = registrar("cupon"),
     Challenge = registrar("desafio"),
     current_mod = {},
+    Keybind = registrar("atajo"),
     find_card = function() return {} end,
     change_base = function(c, _, valor) c.nuevo_valor = valor end,
     Joker = function(t) jokers[#jokers + 1] = t end,
@@ -101,6 +102,14 @@ function mod_mult(x) return x end
 function level_up_hand(_, mano, _, n) G.GAME.hands[mano].level = G.GAME.hands[mano].level + (n or 1) end
 Game = { start_run = function(self) self.GAME = G.GAME end }
 function get_new_boss() return 'bl_original' end
+Card = { click = function(self) self.clic_normal = true end, apply_to_run = function(_, c) G.aplicado = c.key end }
+function UIBox_button(t) return { n = 2, nodes = { { n = 1, config = { button = t.button, ref_table = t.ref_table } } } } end
+function create_UIBox_generic_options(t) return { nodes = t.contents } end
+function create_UIBox_options() return { nodes = { UIBox_button({ button = 'your_collection' }) } } end
+G.STAGES, G.STAGE, G.SETTINGS = { RUN = 2 }, 2, {}
+G.FUNCS.overlay_menu = function(t) G.menu = t.definition end
+G.FUNCS.exit_overlay_menu = function() G.menu = nil end
+G.FUNCS.your_collection_jokers = function() G.pagina = 'jokers' end
 function create_UIBox_buttons() return { nodes = { {}, {} } } end
 
 dofile("main.lua")
@@ -312,6 +321,43 @@ comprobar(G.GAME.tarot_rate == 0 and G.GAME.casino_rate == 8, "El Faraon solo ve
 G.localization = { misc = { v_text = {} } }
 SMODS.current_mod.process_loc_text()
 comprobar(G.localization.misc.v_text.ch_c_kas_todo_o_nada ~= nil, "texto de las reglas de los desafios")
+
+---------------------------------------------------------------- panel de admin
+comprobar(registrados["atajo:admin"] ~= nil, "atajo Ctrl + K registrado")
+registrados["atajo:admin"].action()
+comprobar(G.menu ~= nil, "Ctrl + K abre el panel de admin")
+local dinero = 0
+ease_dollars = function(n) dinero = dinero + n end
+G.FUNCS.kas_admin_dinero({ config = { ref_table = { n = 10 } } })
+G.FUNCS.kas_admin_dinero({ config = { ref_table = { n = -100 } } })
+comprobar(dinero == -90, "el panel da y quita dinero")
+local huecos = G.jokers.config.card_limit
+G.FUNCS.kas_admin_hueco({})
+comprobar(G.jokers.config.card_limit == huecos + 1, "el panel da huecos de comodin")
+G.FUNCS.kas_admin_coleccion({ config = { ref_table = { pagina = 'your_collection_jokers' } } })
+comprobar(G.pagina == 'jokers' and KAS.admin.activo, "abre la coleccion en modo admin")
+local n_creados = #creados
+local en_coleccion = { area = { config = { collection = true } }, config = { center = { key = 'j_joker', set = 'Joker' } },
+    juice_up = function() end }
+Card.click(en_coleccion)
+comprobar(#creados == n_creados + 1 and creados[#creados].key == 'j_joker', "pulsar un comodin de la coleccion te lo da")
+Card.click({ area = { config = { collection = true } }, config = { center = { key = 'c_fool', set = 'Tarot', consumeable = true } },
+    juice_up = function() end })
+comprobar(creados[#creados].key == 'c_fool', "pulsar un Tarot de la coleccion te lo da")
+G.GAME.used_vouchers = {}
+Card.click({ area = { config = { collection = true } }, config = { center = { key = 'v_overstock_norm', set = 'Voucher' } },
+    juice_up = function() end })
+comprobar(G.aplicado == 'v_overstock_norm' and G.GAME.used_vouchers.v_overstock_norm, "pulsar un cupon lo activa")
+G.FUNCS.exit_overlay_menu()
+comprobar(not KAS.admin.activo, "al cerrar el menu se sale del modo admin")
+local normal = { area = { config = { collection = true } }, config = { center = { key = 'j_joker', set = 'Joker' } } }
+Card.click(normal)
+comprobar(normal.clic_normal, "fuera del modo admin la coleccion funciona normal")
+local opciones = create_UIBox_options()
+comprobar(#opciones.nodes == 2 and opciones.nodes[2].nodes[1].config.button == 'kas_admin_abrir',
+    "boton ADMIN KASINO en Opciones")
+G.STAGE = 1
+comprobar(#create_UIBox_options().nodes == 1, "fuera de una partida no sale el boton de admin")
 
 if fallos > 0 then
     print(fallos .. " comprobaciones fallidas")
